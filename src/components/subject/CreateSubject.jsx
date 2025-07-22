@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createSubject } from "../../redux/slices/subjectSlice";
@@ -36,13 +37,12 @@ const CreateSubject = () => {
     }
     return error || "";
   };
-
-  const [courses, isLoading] = useFetchCourses();
+  const course_id = useParams().id;
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
       name: "",
       desc: "",
-      course: "",
+      course: course_id,
     },
     createSubject,
     validate,
@@ -51,12 +51,11 @@ const CreateSubject = () => {
 
   return (
     <SubjectForm
-      courses={courses}
       submitHandler={submitHandler}
       changeHandler={changeHandler}
       formData={formData}
       errors={errors}
-      isLoading={isLoading}
+      url="create"
     ></SubjectForm>
   );
 };

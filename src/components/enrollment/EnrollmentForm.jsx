@@ -13,13 +13,56 @@ import {
   UserPlus, // For main title and submit button
   AlertCircle, // For error messages
   Users, // For installment numbers
-  Calendar, // For due in days
+  Calendar, // For due in days,
+  ListChecks,
 } from "lucide-react";
+import Installment from "./Installment";
 
 const EnrollmentForm = ({ enquiry_id }) => {
   const [courses, isLoading] = useFetchCourses();
   const validate = (input_name, value, formData) => {
     let error;
+
+    switch (input_name) {
+      case "course": {
+        if (!value.trim()) {
+          error = "Course is required.";
+        }
+        break;
+      }
+      case "payment_type": {
+        if (!value.trim()) {
+          error = "Payment Mode is required.";
+        }
+        break;
+      }
+      case "transaction_id": {
+        if (!value.trim()) {
+          error = "Transaction ID is required.";
+        }
+        break;
+      }
+      case "email": {
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        if (!value.trim()) {
+          error = "Email is required.";
+        } else if (!gmailRegex.test(value)) {
+          error = "Please enter a valid @gmail.com email address.";
+        }
+        break;
+      }
+      case "password": {
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+        if (!value) {
+          error = "Password is required.";
+        } else if (!passwordRegex.test(value)) {
+          error =
+            "Password must be at least 6 characters and include uppercase, lowercase, number, and special character.";
+        }
+        break;
+      }
+    }
 
     return error || "";
   };
@@ -31,9 +74,9 @@ const EnrollmentForm = ({ enquiry_id }) => {
       course_obj: {},
       is_lumpsum: false,
       is_total_fee_paid: false,
-      is_installment: false,
+      payment_type: "",
       amount_paid: 0,
-      payment_mode: "",
+      payment_mode: "Cash",
       transaction_id: "",
       installment_info: [],
       email: "",
@@ -44,6 +87,7 @@ const EnrollmentForm = ({ enquiry_id }) => {
     "/",
     "enrollment"
   );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 font-sans">
       {/* Page Header */}
@@ -122,36 +166,40 @@ const EnrollmentForm = ({ enquiry_id }) => {
             Payment Details
           </h2>
 
-          <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-xl">
-            <input
-              type="checkbox"
-              name="is_lumpsum"
-              id="is_lumpsum"
-              onChange={changeHandler}
-              checked={formData.is_lumpsum}
-              className="w-5 h-5 text-blue-600 focus:ring-blue-500 focus:ring-2 rounded border-gray-300"
-            />
-            <label
-              htmlFor="is_lumpsum"
-              className="text-gray-700 font-medium cursor-pointer"
-            >
-              Full Payment (Lumpsum)
-            </label>
-            {/* installment  checkbox */}
-            <input
-              type="checkbox"
-              name="is_installment"
-              id="is_installment"
-              onChange={changeHandler}
-              checked={formData.is_installment}
-              className="w-5 h-5 text-blue-600 focus:ring-blue-500 focus:ring-2 rounded border-gray-300"
-            />
-            <label
-              htmlFor="is_installment"
-              className="text-gray-700 font-medium cursor-pointer"
-            >
-              Installment Payment
-            </label>
+          {/* Payment Type Radio Buttons */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="payment_type"
+                id="lumpsum"
+                value={"lumpsum"}
+                onChange={changeHandler}
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full accent-blue-600"
+              />
+              <label
+                htmlFor="lumpsum"
+                className="ml-2 text-gray-700 font-medium"
+              >
+                Full Payment (Lumpsum)
+              </label>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="radio"
+                name="payment_type"
+                id="installment"
+                value={"installment"}
+                onChange={changeHandler} // Use custom handler
+                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full accent-blue-600"
+              />
+              <label
+                htmlFor="installment"
+                className="ml-2 text-gray-700 font-medium"
+              >
+                Installment
+              </label>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -171,6 +219,7 @@ const EnrollmentForm = ({ enquiry_id }) => {
                   name="amount_paid"
                   id="amount_paid"
                   required
+                  readOnly
                   placeholder="e.g., 15000"
                   onChange={changeHandler}
                   value={formData.amount_paid ?? 0}
@@ -191,33 +240,41 @@ const EnrollmentForm = ({ enquiry_id }) => {
               )}
             </div>
             {/* payment mode */}
-            {!formData.is_installment && (
+            {formData.is_lumpsum && (
               <div className="space-y-2">
                 <label
                   htmlFor="payment_mode"
                   className="flex items-center text-sm font-semibold text-gray-700"
                 >
-                  <CreditCard className="w-4 h-4 mr-2 text-gray-500" />
+                  <ListChecks className="w-4 h-4 mr-2 text-gray-500" />
                   Payment Mode
                   <span className="text-red-500 ml-1">*</span>
                 </label>
                 <div className="relative">
-                  <input
-                    type="text"
+                  <select
                     name="payment_mode"
                     id="payment_mode"
                     required
-                    placeholder="e.g., Online, Cash, UPI"
                     onChange={changeHandler}
                     value={formData.payment_mode}
-                    className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
-                    ${
-                      errors?.payment_mode
-                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                        : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
-                    }
-                    focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
-                  />
+                    className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 appearance-none
+                      ${
+                        errors?.payment_mode
+                          ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                          : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+                      }
+                      focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+                  >
+                    {["Cash", "UPI", "Bank-Transfer", "Card"].map(
+                      (mode, index) => {
+                        return (
+                          <option key={index} value={mode}>
+                            {mode}
+                          </option>
+                        );
+                      }
+                    )}
+                  </select>
                 </div>
                 {errors?.payment_mode && (
                   <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
@@ -230,7 +287,7 @@ const EnrollmentForm = ({ enquiry_id }) => {
           </div>
 
           {/* Transaction ID */}
-          {!formData.is_installment && (
+          {formData.is_lumpsum && formData.payment_mode !== "Cash" && (
             <div className="space-y-2">
               <label
                 htmlFor="transaction_id"
@@ -248,12 +305,12 @@ const EnrollmentForm = ({ enquiry_id }) => {
                   onChange={changeHandler}
                   value={formData.transaction_id}
                   className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
-                  ${
-                    errors?.transaction_id
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
-                  }
-                  focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+                    ${
+                      errors?.transaction_id
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                        : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+                    }
+                    focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
                 />
               </div>
               {errors?.transaction_id && (
@@ -274,82 +331,23 @@ const EnrollmentForm = ({ enquiry_id }) => {
               Installment Breakdown
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Installment Amount */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="installment_amount"
-                  className="flex items-center text-sm font-semibold text-gray-700"
-                >
-                  <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
-                  Amount (₹)
-                </label>
-                <input
-                  type="number"
-                  name="amount"
-                  id="installment_amount"
-                  min="1"
-                  placeholder="5000"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300 transition-all duration-200"
-                />
-              </div>
-              {/* Due In Days */}
-              <div className="space-y-2">
-                <label
-                  htmlFor="due_in_days"
-                  className="flex items-center text-sm font-semibold text-gray-700"
-                >
-                  <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                  Due In (days)
-                </label>
-                <input
-                  type="number"
-                  name="due_in_days"
-                  id="due_in_days"
-                  min="0"
-                  placeholder="30"
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300 transition-all duration-200"
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-200"
-            >
-              <Users className="w-4 h-4 mr-2" />
-              Add Installment
-            </button>
-
             {formData.installment_info?.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <h3 className="text-base font-semibold text-gray-700">
                   Current Installments
                 </h3>
                 <div className="grid gap-3">
-                  {formData.installment_info.map((element, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-200"
-                    >
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <DollarSign className="w-4 h-4 mr-1" />
-                          <span className="font-medium">₹{element.amount}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          <span>Due in {element.due_in_days} days</span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="text-red-500 hover:text-red-700 font-medium text-sm px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))}
+                  {formData.installment_info.map((element, index) => {
+                    return (
+                      <Installment
+                        key={index}
+                        index={index}
+                        element={element}
+                        formData={formData}
+                        setFormData={setFormData}
+                      ></Installment>
+                    );
+                  })}
                 </div>
               </div>
             )}

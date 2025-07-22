@@ -13,9 +13,11 @@ import {
   Percent,
 } from "lucide-react";
 import useFetchCourses from "../../hooks/useFetchCourses";
+import { useNavigate } from "react-router-dom";
 
 const Courses = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [courses, isLoading] = useFetchCourses();
 
@@ -91,20 +93,12 @@ const Courses = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Enhanced Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <div className="relative inline-block">
-            {/* Background decoration */}
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-              Courses
-            </h1>
-          </div>
-        </motion.div>
-
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Courses</h1>
+          <p className="text-gray-600">
+            Manage your academic Courses and their associated subjects.
+          </p>
+        </div>
         {/* Courses Grid */}
         {courses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
@@ -221,15 +215,26 @@ const Courses = () => {
                         whileHover="hover"
                         whileTap="tap"
                         className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+                        onClick={() => {
+                          navigate(`/dashboard/courses/${course._id}/subjects`);
+                        }}
                       >
                         <Eye className="w-4 h-4" />
-                        <span>View</span>
+                        <span>View Subjects</span>
                       </motion.button>
 
                       <motion.button
                         variants={buttonVariants}
                         whileHover="hover"
                         whileTap="tap"
+                        onClick={() => {
+                          navigate(
+                            `/dashboard/courses/${course._id}/update-course`,
+                            {
+                              state: course,
+                            }
+                          );
+                        }}
                         className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
                       >
                         <Edit3 className="w-4 h-4" />

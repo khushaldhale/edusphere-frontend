@@ -13,6 +13,7 @@ import Index from "./components/home/Index";
 import CreateEnquiry from "./components/enquiry/CreateEnquiry";
 import Enquiries from "./components/enquiry/Enquiries";
 import Enquiry from "./components/enquiry/Enquiry";
+import CreateTopic from "./components/topic/createTopic";
 
 function App() {
   return (
@@ -27,8 +28,15 @@ function App() {
             element={<CreateCourse></CreateCourse>}
           ></Route>
           <Route path="courses" element={<Courses></Courses>}></Route>
+          <Route
+            path="courses/:id/update-course"
+            element={<CreateCourse></CreateCourse>}
+          ></Route>
           {/* subjects */}
-          <Route path="subjects" element={<Subjects></Subjects>}></Route>
+          <Route
+            path="courses/:id/subjects"
+            element={<Subjects></Subjects>}
+          ></Route>
           <Route
             path="create-subject"
             element={<CreateSubject></CreateSubject>}
@@ -40,7 +48,16 @@ function App() {
           ></Route>
 
           {/* topics */}
-          <Route path="topics" element={<Topics></Topics>}></Route>
+          {/* get and add topics */}
+          <Route
+            path="courses/:course_id/subjects/:subject_id/topics"
+            element={<Topics></Topics>}
+          ></Route>
+          {/* update topics */}
+          <Route
+            path="courses/:course_id/subjects/:subject_id/topics/:id/update"
+            element={<CreateTopic></CreateTopic>}
+          ></Route>
 
           {/*  Enquiry */}
           <Route

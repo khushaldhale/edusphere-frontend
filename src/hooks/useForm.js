@@ -1,11 +1,11 @@
-import { useContext, useState } from "react";
+import { act, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useSocket from "./useSocket";
-import { SocketContext } from "../SocketProvider";
 
-const useForm = (initialValues, thunk, validate, navigate_url, url) => {
+
+const useForm = (initialValues, thunk, validate, navigate_url, url, state_update) => {
 	const [formData, setFormData] = useState(initialValues);
 	const dispatch = useDispatch();
 	const [errors, setErrors] = useState({});
@@ -14,24 +14,12 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 
 	//  change handler to handle inputs.
 	const changeHandler = (event) => {
-		const { name, type, value, checked } = event.target;
-
+		const { name, type, value, checked, files } = event.target;
 		// proper datatype conversion.
 		let actual_value;
 		switch (type) {
 			case 'number':
-				//  check whether the number is starting with zero or not.
-				if (value.length >= 2 && value.startsWith("0")) {
-					setErrors((prevData) => {
-						return {
-							...prevData,
-							[name]: "Value cannot start with Zero."
-						}
-					})
-				} else {
-					//   here the conversion happens
-					actual_value = Number(value);
-				}
+				actual_value = Number(value);
 				break;
 			case 'checkbox':
 				actual_value = checked;
@@ -39,9 +27,13 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 			case 'date':
 				actual_value = new Date(value); // optional if you're using dates
 				break;
+			case 'file':
+				actual_value = files[0]
+				break;
 			default:
 				actual_value = value;
 		}
+		// actual value is provided mean proper converted datatype value.
 		let error = validate(name, actual_value, formData);
 		setErrors((prevData) => {
 			return {
@@ -50,9 +42,9 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 			}
 		})
 
-		// handle the data  submission for the enrollment
+		// handling the enrollment data.
+		let required_obj = {};
 		if (url === "enrollment") {
-			let required_obj = {};
 			if (name === "course") {
 				const selectedOption = event.target.selectedOptions[0];
 				const courseData = JSON.parse(selectedOption.getAttribute("data-course"));
@@ -60,35 +52,40 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 					[name]: courseData._id,
 					course_obj: courseData
 				}
-			} else if (name === "is_lumpsum" && checked) {
-				required_obj = {
-					is_total_fee_paid: true,
-					amount_paid: formData.course_obj.total_fee,
-					[name]: checked
-				}
-			} else if (name === "is_installment" && checked) {
-				required_obj = {
-					is_total_fee_paid: false,
-					amount_paid: formData.course_obj.installment_fee,
-					[name]: checked
+			} else if (name === "payment_type") {
+				if (value === "lumpsum") {
+					required_obj = {
+						is_lumpsum: true,
+						amount_paid: formData.course_obj.total_fee,
+						is_total_fee_paid: true
+					}
+				} else {
+					//   have to create an installment info  here.
+					const required_arr = formData.course_obj.installment_breakdown.map((installment, index) => {
+						const required_date = new Date(Date.now() + (1000 * 60 * 60 * 24 * installment.due_in_days))
+						return {
+							installment_number: index + 1,
+							amount: installment.amount,
+							due_date: required_date,
+							is_total_fee_paid: false
+
+						}
+					})
+
+					required_obj = {
+						is_lumpsum: false,
+						amount_paid: formData.course_obj.installment_fee,
+						installment_info: required_arr
+					}
 				}
 			}
-
-			setFormData((prevData) => {
-				return {
-					...prevData,
-					[name]: type === "checkbox" ? checked : actual_value,
-					...required_obj,
-
-				}
-			})
-			return;
 		}
-
+		// form data updation.
 		setFormData((prevData) => {
 			return {
 				...prevData,
-				[name]: type === "checkbox" ? checked : actual_value
+				[name]: type === "checkbox" ? checked : actual_value,
+				...required_obj
 			}
 		})
 	}
@@ -96,6 +93,7 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 	// submit handler for form
 	const submitHandler = (event) => {
 		event.preventDefault();
+		// check for errors
 		let action = Object.values(errors).every((error) => {
 			console.log("error :", error)
 			if (error === "") {
@@ -103,10 +101,40 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 			}
 		})
 
-		console.log("form data : ", formData);
-		console.log(" errors  : ", errors);
+		let custom_error;
+		// Enrollment error check
+		if (url === "enrollment") {
+			if (formData.is_lumpsum === false && formData.installment_info.length > 0) {
+				const installment_paid = formData.installment_info[0].is_paid === true && formData.installment_info[0].installment_number === 1
+				if (!installment_paid) {
+					custom_error = "First Installment must be paid."
+				}
+				action = false;
+			} else if (formData.amount_paid < 100) {
+				custom_error = "Amount Paid should be greater than 100."
+				action = false;
+			}
+		}
 
-		// convert the form  data into  FormData object.
+		// course data validation on submission.
+		if (url === "course") {
+			if (formData.is_installments) {
+				const totalFee = formData.installment_breakdown.reduce((acc, element) => {
+					return acc + element.amount
+				}, 0)
+
+				if (formData.installment_numbers !== formData.installment_breakdown.length) {
+					custom_error = "Installment numbers and breakdown doesnt match."
+					action = false;
+				}
+
+				if (totalFee !== formData.installment_fee) {
+					custom_error = "Installment Fee and installment breakdown total doesnt match."
+					action = false;
+				}
+			}
+		}
+		//  call to backend.
 		if (action) {
 			dispatch(thunk(formData))
 				.then((action) => {
@@ -125,6 +153,10 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 							navigate(navigate_url)
 						}
 
+						if (typeof state_update === "function") {
+							state_update(false);
+						}
+
 					} else {
 						toast.error(action.payload.message);
 					}
@@ -132,10 +164,38 @@ const useForm = (initialValues, thunk, validate, navigate_url, url) => {
 
 			setFormData(initialValues)
 		} else {
-			toast.error("Fix the errors first then submit the form.")
+			toast.error(custom_error || "Fix the errors first then submit the form.")
 		}
+
+
 	}
 	return [formData, changeHandler, submitHandler, errors, setFormData];
 }
 
-export default useForm; 
+export default useForm;
+
+
+//  convert the data into the FormData object ,  new FormData() to deal with the files.
+
+
+
+// const number_regex = /[+\-eE\.]/;
+// //  check whether the number is starting with zero or not.
+// if (value.length >= 2 && value.startsWith("0")) {
+// 	setErrors((prevData) => {
+// 		return {
+// 			...prevData,
+// 			[name]: "Value cannot start with Zero."
+// 		}
+// 	})
+// 	// properr number or not
+// } else if (number_regex.test(value)) {
+// 	setErrors((prevData) => {
+// 		return {
+// 			...prevData,
+// 			[name]: "Provide valid number."
+// 		}
+// 	})
+// } else {
+// 	//   here the conversion happens if  everything goes  right.
+// }

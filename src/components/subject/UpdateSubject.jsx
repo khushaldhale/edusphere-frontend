@@ -55,14 +55,22 @@ const UpdateSubject = () => {
   );
 
   return (
-    <SubjectForm
-      courses={courses}
-      submitHandler={submitHandler}
-      changeHandler={changeHandler}
-      formData={formData}
-      errors={errors}
-      isLoading={isLoading}
-    ></SubjectForm>
+    <div>
+      <div className="text-center my-10">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Update Subject
+        </h1>
+      </div>
+      <SubjectForm
+        courses={courses}
+        submitHandler={submitHandler}
+        changeHandler={changeHandler}
+        formData={formData}
+        errors={errors}
+        isLoading={isLoading}
+        url="update"
+      ></SubjectForm>
+    </div>
   );
 };
 
