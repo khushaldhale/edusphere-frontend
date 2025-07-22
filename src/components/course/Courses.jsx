@@ -228,12 +228,9 @@ const Courses = () => {
                         whileHover="hover"
                         whileTap="tap"
                         onClick={() => {
-                          navigate(
-                            `/dashboard/courses/${course._id}/update-course`,
-                            {
-                              state: course,
-                            }
-                          );
+                          navigate(`/dashboard/courses/${course._id}/update`, {
+                            state: course,
+                          });
                         }}
                         className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
                       >

@@ -5,7 +5,8 @@ import subjectSlice from "./slices/subjectSlice";
 import topicSlice from "./slices/topicSlice";
 import enquirySlice from "./slices/enquirySlice";
 import enrollmentSlice from "./slices/enrollmentSlice";
-import { batchSlice } from "./slices/batchSlice";
+import batchSlice from "./slices/batchSlice";
+import employeeSlice from "./slices/employeeSlice";
 
 
 const store = configureStore(
@@ -17,7 +18,8 @@ const store = configureStore(
 			topic: topicSlice,
 			enquiry: enquirySlice,
 			enrollment: enrollmentSlice,
-			batch: batchSlice
+			batch: batchSlice,
+			employee: employeeSlice
 		}
 	}
 )
