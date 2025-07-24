@@ -20,6 +20,8 @@ import CreateEmployee from "./components/employees/CreateEmployee";
 import Employees from "./components/employees/Employees";
 import Students from "./components/students/Students";
 import AddBatch from "./components/students/AddBatch";
+import CreateExam from "./components/exam/CreateExam";
+import Exams from "./components/exam/Exams";
 
 function App() {
   return (
@@ -83,12 +85,19 @@ function App() {
             path="courses/:course_id/subjects/:subject_id/topics/:id/update"
             element={<CreateTopic></CreateTopic>}
           ></Route>
-          {/* student routes */}
+          {/* student batch allocation routes */}
           <Route path="students" element={<Students></Students>}></Route>
           <Route
             path="students/:id/add-batch"
             element={<AddBatch></AddBatch>}
           ></Route>
+          {/* exam section */}
+          <Route path="exams/add" element={<CreateExam></CreateExam>}></Route>
+          <Route
+            path="exams/update"
+            element={<CreateExam></CreateExam>}
+          ></Route>
+          <Route path="exams" element={<Exams></Exams>}></Route>
         </Route>
       </Routes>
       <ToastContainer></ToastContainer>

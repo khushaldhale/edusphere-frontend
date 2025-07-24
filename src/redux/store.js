@@ -8,6 +8,7 @@ import enrollmentSlice from "./slices/enrollmentSlice";
 import batchSlice from "./slices/batchSlice";
 import employeeSlice from "./slices/employeeSlice";
 import studentSlice from "./slices/studentsSlice";
+import examSlice from "./slices/examSlice";
 
 
 const store = configureStore(
@@ -21,7 +22,8 @@ const store = configureStore(
 			enrollment: enrollmentSlice,
 			batch: batchSlice,
 			employee: employeeSlice,
-			student: studentSlice
+			student: studentSlice,
+			exam: examSlice
 		}
 	}
 )
