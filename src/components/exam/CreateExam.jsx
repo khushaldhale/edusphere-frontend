@@ -24,8 +24,6 @@ const CreateExam = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const data = location.state;
-  //   format the exam date.
-  data.exam_date = data.exam_date.split("T")[0];
   const required_path = location.pathname.split("/").at(-1);
   const batches = useSelector((state) => state.batch.batches);
   const subjects = useSelector((state) => state.subject.subjects);
@@ -33,6 +31,7 @@ const CreateExam = () => {
   let thunk;
   if (required_path === "update") {
     thunk = updateExam;
+    data.exam_date = data?.exam_date?.split("T")[0];
   } else {
     thunk = createExam;
   }
@@ -44,15 +43,15 @@ const CreateExam = () => {
 
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
-      name: data.name || "",
-      desc: data.desc || "",
-      course: data.course || "",
-      batch: data.batch || "",
-      subject: data.subject || "",
-      total_marks: data.total_marks || "",
-      duration: data.duration || "",
-      exam_date: data.exam_date || "",
-      exam_id: data._id || "",
+      name: data?.name || "",
+      desc: data?.desc || "",
+      course: data?.course || "",
+      batch: data?.batch || "",
+      subject: data?.subject || "",
+      total_marks: data?.total_marks || "",
+      duration: data?.duration || "",
+      exam_date: data?.exam_date || "",
+      exam_id: data?._id || "",
     },
     thunk,
     validate,
@@ -79,7 +78,7 @@ const CreateExam = () => {
     setFormData((prevData) => {
       return {
         ...prevData,
-        subject: data.subject,
+        subject: data?.subject,
       };
     });
   }, [subjects]);

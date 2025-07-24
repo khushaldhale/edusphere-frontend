@@ -21,7 +21,6 @@ const Login = () => {
           "Password must be at least 6 characters and include uppercase, lowercase, number, and special character.";
       }
     }
-
     return error;
   };
 
@@ -32,15 +31,13 @@ const Login = () => {
     },
     login,
     validate,
-    "/dashboard/enquiries",
+    "/",
     "login"
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
-      <div className="max-w-md mx-auto">
-        {" "}
-        {/* Changed max-w-4xl to max-w-md for a more compact login form */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
+      <div className="max-w-md w-full">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Welcome Back!
@@ -50,6 +47,7 @@ const Login = () => {
         <form
           onSubmit={submitHandler}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
+          noValidate
         >
           {/* Email Input Section */}
           <div className="space-y-2">
@@ -58,8 +56,7 @@ const Login = () => {
               className="flex items-center text-sm font-semibold text-gray-700"
             >
               <Mail className="w-4 h-4 mr-2 text-gray-500" />
-              Email Address
-              <span className="text-red-500 ml-1">*</span>
+              Email Address <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="relative">
               <input
@@ -70,13 +67,11 @@ const Login = () => {
                 onChange={changeHandler}
                 required
                 placeholder="your.email@gmail.com"
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
-                  ${
-                    errors.email
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
-                  }
-                  focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300 ${
+                  errors.email
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+                } focus:ring-4 focus:ring-opacity-20`}
               />
             </div>
             {errors.email && (
@@ -94,8 +89,7 @@ const Login = () => {
               className="flex items-center text-sm font-semibold text-gray-700"
             >
               <Lock className="w-4 h-4 mr-2 text-gray-500" />
-              Password
-              <span className="text-red-500 ml-1">*</span>
+              Password <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="relative">
               <input
@@ -106,13 +100,11 @@ const Login = () => {
                 onChange={changeHandler}
                 required
                 placeholder="Enter your password"
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
-                  ${
-                    errors.password
-                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
-                  }
-                  focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300 ${
+                  errors.password
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+                } focus:ring-4 focus:ring-opacity-20`}
               />
             </div>
             {errors.password && (
@@ -127,7 +119,7 @@ const Login = () => {
           <div className="pt-6 border-t border-gray-200">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <LogIn className="w-5 h-5" />
               <span>Login</span>

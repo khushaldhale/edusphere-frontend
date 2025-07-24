@@ -22,6 +22,8 @@ import Students from "./components/students/Students";
 import AddBatch from "./components/students/AddBatch";
 import CreateExam from "./components/exam/CreateExam";
 import Exams from "./components/exam/Exams";
+import Questions from "./components/questions/Questions";
+import CreateQuestion from "./components/questions/CreateQuestion";
 
 function App() {
   return (
@@ -98,6 +100,15 @@ function App() {
             element={<CreateExam></CreateExam>}
           ></Route>
           <Route path="exams" element={<Exams></Exams>}></Route>
+          {/* Question section  */}
+          <Route
+            path="exams/:id/questions"
+            element={<Questions></Questions>}
+          ></Route>
+          <Route
+            path="exams/:id/questions/update"
+            element={<CreateQuestion></CreateQuestion>}
+          ></Route>
         </Route>
       </Routes>
       <ToastContainer></ToastContainer>

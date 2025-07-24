@@ -175,6 +175,13 @@ const Exams = () => {
                 >
                   Update Exam{" "}
                 </button>
+                <button
+                  onClick={() => {
+                    navigate(`/dashboard/exams/${exam._id}/questions`);
+                  }}
+                >
+                  Add Questions
+                </button>
               </div>
             ))}
           </div>
