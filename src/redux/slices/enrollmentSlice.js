@@ -23,9 +23,30 @@ export const createEnrollment = createAsyncThunk("createEnrollment", async (data
 		return rejectWithValue(error)
 	}
 })
+
+export const particularEnrollment = createAsyncThunk("particularEnrollment", async (data, { rejectWithValue }) => {
+	try {
+
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/enrollments?student=${data.student_id}`, {
+			method: "GET",
+			credentials: "include",
+		})
+
+		if (!response.ok) {
+			return rejectWithValue(await response.json());
+		}
+		return await response.json();
+	}
+	catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
+
 const initialState = {
 	isLoading: null,
 	isError: null,
+	enrollment: null
 }
 export const enrollmentSlice = createSlice(
 	{
@@ -43,6 +64,22 @@ export const enrollmentSlice = createSlice(
 					console.log("Enrollment done : ", action.payload.data)
 				})
 				.addCase(createEnrollment.rejected, (state) => {
+					state.isError = true;
+					state.isLoading = false;
+				})
+
+
+			builder.addCase(particularEnrollment.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(particularEnrollment.fulfilled, (state, action) => {
+					state.isError = false;
+					state.isLoading = false;
+					state.enrollment = action.payload.data;
+					console.log("enrollment : ", action.payload.data)
+				})
+				.addCase(particularEnrollment.rejected, (state) => {
 					state.isError = true;
 					state.isLoading = false;
 				})

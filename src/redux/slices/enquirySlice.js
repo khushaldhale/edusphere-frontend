@@ -86,17 +86,18 @@ export const updateEnquiry = createAsyncThunk("updateEnquiry", async (data, { re
 
 export const changeEnquiryStatus = createAsyncThunk("changeEnquiryStatus", async (data, { rejectWithValue }) => {
 	try {
+
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/enquiries/${data.enquiry_id}/status/change?status=${data.status}`, {
 			method: "PUT",
 			credentials: "include",
 			headers: {
 				"Content-Type": "application/json"
 			},
+			body: JSON.stringify(data)
 		})
 		if (!response.ok) {
 			return rejectWithValue(await response.json());
 		}
-
 		return await response.json();
 	} catch (error) {
 		return rejectWithValue(error)
@@ -209,7 +210,7 @@ export const enquirySlice = createSlice({
 			.addCase(changeEnquiryStatus.fulfilled, (state, action) => {
 				state.isLoading = false;
 				state.isError = false;
-				//  we will do operation later here.
+				console.log("changed enquiry : ", action.payload.data)
 			})
 			.addCase(changeEnquiryStatus.rejected, (state, action) => {
 				state.isError = true;

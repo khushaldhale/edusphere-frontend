@@ -39,7 +39,7 @@ const Enquiries = () => {
   });
 
   // Defines the available status options for filtering enquiries
-  const statusOptions = ["new", "follow-up", "converted", "not-interested"];
+  const statusOptions = ["new", "follow-up", "converted", "processing"];
 
   // State to manage which status button is currently active for styling
   const [activeStatus, setActiveStatus] = useState("new");
@@ -236,7 +236,11 @@ const Enquiries = () => {
                       className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 focus:ring-4  shadow-md"
                     >
                       <MessageSquareMore className="w-4 h-4 mr-1" />
-                      <span>Pending</span>
+                      <span>
+                        {enquiry.status === "converted"
+                          ? "View Details"
+                          : "Enroll Students"}
+                      </span>
                     </button>
                   </div>
                 </div>

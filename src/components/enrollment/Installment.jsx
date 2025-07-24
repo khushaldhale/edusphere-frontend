@@ -6,6 +6,7 @@ import {
   AlertCircle,
   ListChecks,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Installment = ({ index, element, formData, setFormData }) => {
   const [installmentCheck, setInstallmentCheck] = useState(false);
@@ -17,8 +18,44 @@ const Installment = ({ index, element, formData, setFormData }) => {
     transaction: "",
   });
 
+  const [errors, setErrors] = useState({});
+
+  const validate = (name, value) => {
+    let error = "";
+    switch (name) {
+      case "mode": {
+        if (!value.trim()) {
+          error = "Payment Mode is required.";
+        }
+      }
+      case "transaction": {
+        if (!value.trim()) {
+          error = "Transaction ID is required for non-cash payments.";
+        }
+      }
+    }
+
+    return error;
+  };
+
   const breakdownHandler = (event) => {
     const { name, value } = event.target;
+
+    let custom_error = {};
+    if (name === "mode" && value === "Cash") {
+      custom_error = {
+        transaction: "",
+      };
+    }
+
+    let error = validate(name, value);
+    setErrors((prevData) => {
+      return {
+        ...prevData,
+        [name]: error,
+        ...custom_error,
+      };
+    });
     setBreakDown((prevData) => {
       return {
         ...prevData,
@@ -28,27 +65,37 @@ const Installment = ({ index, element, formData, setFormData }) => {
   };
 
   const payInstallment = () => {
-    const required_arr = formData.installment_info.map((element) => {
-      if (element.installment_number === index + 1) {
-        return {
-          ...element,
-          ...breakdown,
-          paid_on: new Date(Date.now()),
-        };
-      } else {
-        return element;
+    console.log("errors : ", errors);
+    const action = Object.values(errors).every((error) => {
+      if (error === "") {
+        return true;
       }
     });
-    setInstallmentCheck(!installmentCheck);
-    setFormData((prevData) => {
-      return {
-        ...prevData,
-        installment_info: required_arr,
-      };
-    });
+
+    if (action) {
+      const required_arr = formData.installment_info.map((element) => {
+        if (element.installment_number === index + 1) {
+          return {
+            ...element,
+            ...breakdown,
+            paid_on: new Date(Date.now()),
+          };
+        } else {
+          return element;
+        }
+      });
+      setInstallmentCheck(!installmentCheck);
+      setFormData((prevData) => {
+        return {
+          ...prevData,
+          installment_info: required_arr,
+        };
+      });
+    } else {
+      toast.error("Fix the errors first then proceed.");
+    }
   };
 
-  const errors = {};
   return (
     <div
       key={index}
@@ -62,7 +109,7 @@ const Installment = ({ index, element, formData, setFormData }) => {
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="w-4 h-4 mr-2 text-blue-500" />
-            <span>Due in {element?.due_date?.toLocaleDateString()}</span>
+            <span>Due in {element?.due_date?.toISOString().split("T")[0]}</span>
           </div>
         </div>
         <button

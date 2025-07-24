@@ -57,6 +57,28 @@ export const deleteBatch = createAsyncThunk("deleteBatch", async (data, { reject
 		return rejectWithValue(error)
 	}
 })
+
+export const addToBatch = createAsyncThunk("addToBatch", async (data, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/batches/add-to-batch`, {
+			method: "PUT",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(data)
+		})
+
+		if (!response.ok) {
+			return rejectWithValue(await response.json())
+		}
+		return await response.json();
+	}
+	catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
 const initialState = {
 	isLoading: null,
 	isError: null,
@@ -110,6 +132,19 @@ export const batchSlice = createSlice(
 				})
 			})
 				.addCase(deleteBatch.rejected, (state, action) => {
+					state.isLoading = false;
+					state.isError = true;
+				})
+
+
+			builder.addCase(addToBatch.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			}).addCase(addToBatch.fulfilled, (state, action) => {
+				state.isLoading = false;
+				state.isError = false;
+			})
+				.addCase(addToBatch.rejected, (state, action) => {
 					state.isLoading = false;
 					state.isError = true;
 				})

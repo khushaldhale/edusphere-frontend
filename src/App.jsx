@@ -18,6 +18,8 @@ import Batches from "./components/batch/Batches";
 import CreateBatch from "./components/batch/CreateBatch";
 import CreateEmployee from "./components/employees/CreateEmployee";
 import Employees from "./components/employees/Employees";
+import Students from "./components/students/Students";
+import AddBatch from "./components/students/AddBatch";
 
 function App() {
   return (
@@ -52,7 +54,14 @@ function App() {
             path="employees/:id/update"
             element={<CreateEmployee></CreateEmployee>}
           ></Route>
-          '{/* subjects */}
+          {/*  Enquiry */}
+          <Route
+            path="enquiries/add"
+            element={<CreateEnquiry></CreateEnquiry>}
+          ></Route>
+          <Route path="enquiries" element={<Enquiries></Enquiries>}></Route>
+          <Route path="enquiries/:id" element={<Enquiry></Enquiry>}></Route>'
+          {/* subjects */}
           <Route
             path="courses/:id/subjects"
             element={<Subjects></Subjects>}
@@ -66,23 +75,20 @@ function App() {
             element={<UpdateSubject></UpdateSubject>}
           ></Route>
           {/* topics */}
-          {/* get and add topics */}
           <Route
             path="courses/:course_id/subjects/:subject_id/topics"
             element={<Topics></Topics>}
           ></Route>
-          {/* update topics */}
           <Route
             path="courses/:course_id/subjects/:subject_id/topics/:id/update"
             element={<CreateTopic></CreateTopic>}
           ></Route>
-          {/*  Enquiry */}
+          {/* student routes */}
+          <Route path="students" element={<Students></Students>}></Route>
           <Route
-            path="create-enquiry"
-            element={<CreateEnquiry></CreateEnquiry>}
+            path="students/:id/add-batch"
+            element={<AddBatch></AddBatch>}
           ></Route>
-          <Route path="enquiries" element={<Enquiries></Enquiries>}></Route>
-          <Route path="enquiries/:id" element={<Enquiry></Enquiry>}></Route>
         </Route>
       </Routes>
       <ToastContainer></ToastContainer>

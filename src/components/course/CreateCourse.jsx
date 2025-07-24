@@ -680,7 +680,7 @@ const CreateCourse = () => {
           <div className="pt-6 border-t border-gray-200">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
+              className="w-full bg-gradient-to-r  from-blue-600 to-purple-600 hover:from-blue-700  hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-blue-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
             >
               <BookOpen className="w-5 h-5" />
               <span>

@@ -15,6 +15,7 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 	//  change handler to handle inputs.
 	const changeHandler = (event) => {
 		const { name, type, value, checked, files } = event.target;
+
 		// proper datatype conversion.
 		let actual_value;
 		switch (type) {
@@ -25,7 +26,7 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 				actual_value = checked;
 				break;
 			case 'date':
-				actual_value = new Date(value); // optional if you're using dates
+				actual_value = value; // optional if you're using dates
 				break;
 			case 'file':
 				actual_value = files[0]
@@ -35,10 +36,20 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 		}
 		// actual value is provided mean proper converted datatype value.
 		let error = validate(name, actual_value, formData);
+
+		// unwanted  error handle
+		// for Enrollment form only
+		let error_unwanted = {};
+		if (name === "payment_mode" && value === "Cash") {
+			error_unwanted = {
+				transaction_id: ""
+			}
+		}
 		setErrors((prevData) => {
 			return {
 				...prevData,
-				[name]: error
+				[name]: error,
+				...error_unwanted
 			}
 		})
 
@@ -53,6 +64,18 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 					course_obj: courseData
 				}
 			} else if (name === "payment_type") {
+
+				if (!formData.course) {
+					setErrors((prevData) => {
+						return {
+							...prevData,
+							course: "Select the  course that you have to  enroll first."
+						}
+					})
+
+					return;
+				}
+
 				if (value === "lumpsum") {
 					required_obj = {
 						is_lumpsum: true,
@@ -79,7 +102,22 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 					}
 				}
 			}
+		} else if (url === "enquiry") {
+			if (name === "passing_year") {
+				const current_year = new Date(Date.now()).getFullYear();
+
+				if (actual_value > current_year) {
+					required_obj = {
+						current_status: "Studying"
+					}
+				} else if (actual_value < current_year) {
+					required_obj = {
+						current_status: "Passed"
+					}
+				}
+			}
 		}
+
 		// form data updation.
 		setFormData((prevData) => {
 			return {
@@ -100,24 +138,23 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 				return true;
 			}
 		})
-
 		let custom_error;
 		// Enrollment error check
 		if (url === "enrollment") {
 			if (formData.is_lumpsum === false && formData.installment_info.length > 0) {
 				const installment_paid = formData.installment_info[0].is_paid === true && formData.installment_info[0].installment_number === 1
+
 				if (!installment_paid) {
 					custom_error = "First Installment must be paid."
+					action = false;
 				}
-				action = false;
 			} else if (formData.amount_paid < 100) {
 				custom_error = "Amount Paid should be greater than 100."
 				action = false;
 			}
 		}
-
-		// course data validation on submission.
-		if (url === "course") {
+		else if (url === "course") {
+			// course data validation on submission.
 			if (formData.is_installments) {
 				const totalFee = formData.installment_breakdown.reduce((acc, element) => {
 					return acc + element.amount
@@ -133,7 +170,23 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 					action = false;
 				}
 			}
+		} else if (url === "enquiry") {
+
+			const current_year = new Date(Date.now()).getFullYear();
+
+			if (formData.passing_year > current_year && formData.current_status !== "Studying") {
+				custom_error = "Current status and passsing year doesnt match."
+				action = false;
+
+			} else if (formData.passing_year < current_year && formData.current_status !== "Passed") {
+				custom_error = "Current status and passsing year doesnt match."
+				action = false;
+
+			}
+
 		}
+
+
 		//  call to backend.
 		if (action) {
 			dispatch(thunk(formData))

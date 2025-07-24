@@ -38,6 +38,14 @@ const menus = [
     ],
   },
   {
+    name: "Enquiries",
+    icon: <Users className="w-5 h-5 mr-2" />,
+    subMenus: [
+      { label: "All Enquiries", to: "/dashboard/enquiries" },
+      { label: "Add Enquiry", to: "/dashboard/enquiries/add" },
+    ],
+  },
+  {
     name: "Settings",
     icon: <Settings className="w-5 h-5 mr-2" />,
     to: "/dashboard/settings",
