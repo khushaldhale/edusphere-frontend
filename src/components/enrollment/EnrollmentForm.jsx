@@ -1,5 +1,4 @@
 import { useState } from "react";
-import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createEnrollment } from "../../redux/slices/enrollmentSlice";
 
@@ -17,9 +16,10 @@ import {
   ListChecks,
 } from "lucide-react";
 import Installment from "./Installment";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
-const EnrollmentForm = ({ enquiry_id }) => {
-  const [courses, isLoading] = useFetchCourses();
+const EnrollmentForm = ({ enquiry_id, courses, isLoading }) => {
   const validate = (input_name, value, formData) => {
     let error;
 
@@ -87,6 +87,14 @@ const EnrollmentForm = ({ enquiry_id }) => {
     "/",
     "enrollment"
   );
+
+  const is_loading = useSelector((state) => {
+    return state.enrollment.isLoading;
+  });
+
+  if (is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 font-sans">

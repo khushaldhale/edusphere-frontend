@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import { useNavigate } from "react-router-dom";
+import Loading from "../Loading";
 
 const Courses = () => {
   const dispatch = useDispatch();
@@ -67,26 +68,7 @@ const Courses = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <BookOpen className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Loading Courses...
-          </h2>
-          <p className="text-gray-600">
-            Please wait while we fetch your courses
-          </p>
-        </motion.div>
-      </div>
-    );
+    return <Loading></Loading>;
   }
 
   return (
@@ -143,34 +125,41 @@ const Courses = () => {
                       </div>
                     </div>
 
-                    {/* Course Stats */}
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="flex items-center text-gray-600">
-                        <Clock className="w-4 h-4 mr-2 text-blue-500" />
-                        <span className="text-sm font-medium">
-                          {course.duration} months
-                        </span>
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <DollarSign className="w-4 h-4 mr-2 text-green-500" />
-                        <span className="text-sm font-medium">
-                          ₹{course.total_fee?.toLocaleString()}
-                        </span>
-                      </div>
-                      {course.is_installments && (
-                        <div className="flex items-center text-gray-600">
-                          <Users className="w-4 h-4 mr-2 text-purple-500" />
-                          <span className="text-sm font-medium">
-                            {course.installment_numbers} installments
-                          </span>
+                    {/* Enhanced Fee Section */}
+                    <div className="flex pb-2 items-center text-gray-600">
+                      <Clock className="w-4 h-4 mr-2 text-blue-500" />
+                      <span className="text-sm font-medium">
+                        {course.duration} months
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                      {/* Total Fee */}
+
+                      <div className="flex items-center space-x-2 rounded-lg bg-gray-50 px-3 py-2 border border-gray-100">
+                        <div>
+                          <div className="text-xs text-gray-500 font-medium">
+                            Total Fee
+                          </div>
+                          <div className="font-semibold text-lg text-gray-900">
+                            ₹{course.total_fee?.toLocaleString()}
+                          </div>
                         </div>
-                      )}
-                      {course.discount_allowed && (
-                        <div className="flex items-center text-gray-600">
-                          <Percent className="w-4 h-4 mr-2 text-orange-500" />
-                          <span className="text-sm font-medium">
-                            {course.discount_per}% discount
-                          </span>
+                      </div>
+
+                      {/* Installment Fee (if applicable) */}
+                      {course.is_installments && (
+                        <div className="flex items-center space-x-2 rounded-lg bg-blue-50 px-3 py-2 border border-blue-100">
+                          <div>
+                            <div className="text-xs text-blue-800 font-medium">
+                              Installment Fee
+                            </div>
+                            <div className="font-semibold text-lg text-blue-900">
+                              ₹{course.installment_fee?.toLocaleString()}
+                            </div>
+                            <div className="text-xs text-blue-700">
+                              ({course.installment_numbers} installments)
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>

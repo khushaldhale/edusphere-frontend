@@ -10,6 +10,8 @@ import {
   AlertCircle,
   Target,
 } from "lucide-react"; // Lucide icons
+import Loading from "../Loading";
+import { useSelector } from "react-redux";
 
 const CreateBatch = () => {
   const [courses, isLoading] = useFetchCourses();
@@ -18,6 +20,9 @@ const CreateBatch = () => {
 
     return error || "";
   };
+  const is_loading = useSelector((state) => {
+    return state.batch.isLoading;
+  });
   const location = useLocation();
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
@@ -30,6 +35,10 @@ const CreateBatch = () => {
     "/dashboard/batches",
     "batch"
   );
+
+  if (is_loading || isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="bg-gradient-to-br py-1 px-4">

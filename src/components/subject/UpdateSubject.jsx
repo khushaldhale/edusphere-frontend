@@ -3,6 +3,8 @@ import { updateSubject } from "../../redux/slices/subjectSlice";
 import SubjectForm from "./SubjectForm";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const UpdateSubject = () => {
   const location = useLocation();
@@ -53,6 +55,14 @@ const UpdateSubject = () => {
     validate,
     "/dashboard/courses"
   );
+
+  const is_loading = useSelector((state) => {
+    return state.subject.isLoading;
+  });
+
+  if (is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div>

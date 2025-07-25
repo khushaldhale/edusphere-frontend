@@ -1,7 +1,8 @@
-import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 import { createTopic, updateTopic } from "../../redux/slices/topicSlice";
+import { Target, AlertCircle, FileText, BookOpen } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const CreateTopic = ({ setAddTopic }) => {
   const location = useLocation();
@@ -64,31 +65,39 @@ const CreateTopic = ({ setAddTopic }) => {
     setAddTopic
   );
 
+  const isLoading = useSelector((state) => {
+    return state.topic.isLoading;
+  });
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4 font-sans">
-      <div className="max-w-5xl mx-auto">
+    <div className="bg-gradient-to-br py-1 px-4">
+      <div className="max-w-3xl mx-auto">
         {required_path === "update" && (
-          <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <div className="text-center my-8">
+            <h1 className="text-3xl font-semibold text-gray-800 flex items-center justify-center">
               Update Topic
             </h1>
           </div>
         )}
 
-        <div className="max-w-md mx-auto bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-8">
-          <form
-            onSubmit={(event) => {
-              submitHandler(event);
-            }}
-          >
-            {/* Topic Name */}
-            <div className="mb-4">
-              <label
-                htmlFor="name"
-                className="block text-gray-700 text-sm font-semibold mb-2"
-              >
-                Topic Name
-              </label>
+        <form
+          onSubmit={(event) => submitHandler(event)}
+          className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
+        >
+          {/* Topic Name */}
+          <div className="space-y-2">
+            <label
+              htmlFor="name"
+              className="flex items-center text-sm font-semibold text-gray-700"
+            >
+              <Target className="w-4 h-4 mr-2 text-gray-500" />
+              Topic Name
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <div className="relative">
               <input
                 type="text"
                 name="name"
@@ -96,79 +105,111 @@ const CreateTopic = ({ setAddTopic }) => {
                 value={formData.name}
                 onChange={changeHandler}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 placeholder="e.g., Introduction to Algebra"
+                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
+                ${
+                  errors.name
+                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
+                }
+                focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
               />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
             </div>
-
-            {/* Description */}
-            <div className="mb-4">
-              <label
-                htmlFor="desc"
-                className="block text-gray-700 text-sm font-semibold mb-2"
-              >
-                Description
-              </label>
-              <textarea
-                name="desc"
-                id="desc"
-                value={formData.desc}
-                onChange={changeHandler}
-                required
-                rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 resize-y"
-                placeholder="Provide a brief description of the topic..."
-              ></textarea>
-              {errors.desc && (
-                <p className="text-red-500 text-sm mt-1">{errors.desc}</p>
-              )}
-            </div>
-
-            {/* Notes PDF Upload */}
-            <div className="mb-6">
-              <label
-                htmlFor="notes_pdf"
-                className="block text-gray-700 text-sm font-semibold mb-2"
-              >
-                Upload Notes (PDF)
-              </label>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full">
-                <input
-                  type="file"
-                  name="notes_pdf"
-                  id="notes_pdf"
-                  accept=".pdf"
-                  required={required_path !== "update"}
-                  onChange={changeHandler}
-                  className="block w-full sm:w-auto text-sm text-gray-700
-               file:mr-4 file:py-2 file:px-4
-               file:rounded-lg file:border-0
-               file:text-sm file:font-semibold
-               file:bg-blue-600 file:text-white
-               hover:file:bg-blue-700
-               transition duration-200"
-                />
+            {errors.name && (
+              <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
+                <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                <span>{errors.name}</span>
               </div>
+            )}
+          </div>
 
-              {errors.notes_pdf && (
-                <p className="text-red-500 text-sm mt-1">{errors.notes_pdf}</p>
-              )}
-            </div>
+          {/* Description */}
+          <div className="space-y-2">
+            <label
+              htmlFor="desc"
+              className="flex items-center text-sm font-semibold text-gray-700"
+            >
+              <FileText className="w-4 h-4 mr-2 text-gray-500" />
+              Description
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+            <textarea
+              name="desc"
+              id="desc"
+              value={formData.desc}
+              onChange={changeHandler}
+              required
+              rows={4}
+              placeholder="Provide a brief description of the topic..."
+              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 resize-none
+              ${
+                errors.desc
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
+              }
+              focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+            />
+            {errors.desc && (
+              <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
+                <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                <span>{errors.desc}</span>
+              </div>
+            )}
+          </div>
 
-            {/* Submit Button */}
+          {/* Notes PDF Upload */}
+          <div className="space-y-2">
+            <label
+              htmlFor="notes_pdf"
+              className="flex items-center text-sm font-semibold text-gray-700"
+            >
+              <BookOpen className="w-4 h-4 mr-2 text-gray-500" />
+              Upload Notes (PDF)
+              <span
+                className={
+                  required_path !== "update" ? "text-red-500 ml-1" : "ml-1"
+                }
+              >
+                *
+              </span>
+            </label>
+            <input
+              type="file"
+              name="notes_pdf"
+              id="notes_pdf"
+              accept=".pdf"
+              required={required_path !== "update"}
+              onChange={changeHandler}
+              className="block w-full text-sm text-gray-700 
+  file:mr-4 file:py-2 file:px-4
+   file:text-sm file:font-semibold
+  file:bg-blue-600
+  file:text-white hover:file:bg-blue-700
+  transition duration-200"
+            />
+            {errors.notes_pdf && (
+              <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
+                <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                <span>{errors.notes_pdf}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div>
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed
+              text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105
+              focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2"
             >
-              {required_path === "update-topic"
-                ? "Update Topic"
-                : "Create Topic"}
+              <Target className="w-5 h-5" />
+              <span>
+                {required_path === "update" ? "Update Topic" : "Create Topic"}
+              </span>
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

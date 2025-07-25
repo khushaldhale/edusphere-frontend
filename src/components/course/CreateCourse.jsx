@@ -11,8 +11,8 @@ import useForm from "../../hooks/useForm";
 import { createCourse, updateCourse } from "../../redux/slices/courseSlice";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
-
-// Due date for the  first installmet should be 1.
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const CreateCourse = () => {
   const validate = (input_name, value, formData) => {
@@ -69,6 +69,9 @@ const CreateCourse = () => {
     }
     return error || "";
   };
+  const isLoading = useSelector((state) => {
+    return state.course.isLoading;
+  });
   const location = useLocation();
   const required_path = location.pathname.split("/").at(-1);
   let initialvalues = {
@@ -83,7 +86,7 @@ const CreateCourse = () => {
   };
   let thunk = createCourse;
   let data;
-  if (required_path === "update-course") {
+  if (required_path === "update") {
     data = location.state;
     thunk = updateCourse;
     initialvalues = {
@@ -283,19 +286,24 @@ const CreateCourse = () => {
   const installment_due = useRef();
 
   useEffect(() => {
-    if (required_path === "update-course") {
+    if (required_path === "update") {
       duration_ref.current.value = data.duration;
       total_fee_ref.current.value = data.total_fee;
       installment_fee_ref.current.value = data.installment_fee;
       installment_number_ref.current.value = data.installment_numbers;
     }
   }, [required_path]);
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {required_path === "update-course" ? "Update" : "Create New"} Course
+            {required_path === "update" ? "Update" : "Create New"} Course
           </h1>
           <p className="text-gray-600">
             Design your educational program with detailed configuration
@@ -685,7 +693,7 @@ const CreateCourse = () => {
               <BookOpen className="w-5 h-5" />
               <span>
                 {" "}
-                {required_path === "update-course" ? "Update" : "Create"} Course
+                {required_path === "update" ? "Update" : "Create"} Course
               </span>
             </button>
           </div>

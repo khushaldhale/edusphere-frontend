@@ -24,6 +24,8 @@ import CreateExam from "./components/exam/CreateExam";
 import Exams from "./components/exam/Exams";
 import Questions from "./components/questions/Questions";
 import CreateQuestion from "./components/questions/CreateQuestion";
+import CreateMock from "./components/mocks/CreateMock";
+import Mocks from "./components/mocks/Mocks";
 
 function App() {
   return (
@@ -108,6 +110,13 @@ function App() {
           <Route
             path="exams/:id/questions/update"
             element={<CreateQuestion></CreateQuestion>}
+          ></Route>
+          {/* mocks */}
+          <Route path="mocks/add" element={<CreateMock></CreateMock>}></Route>
+          <Route path="mocks" element={<Mocks></Mocks>}></Route>
+          <Route
+            path="mocks/:id/update"
+            element={<CreateMock></CreateMock>}
           ></Route>
         </Route>
       </Routes>

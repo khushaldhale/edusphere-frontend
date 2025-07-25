@@ -10,6 +10,7 @@ import employeeSlice from "./slices/employeeSlice";
 import studentSlice from "./slices/studentsSlice";
 import examSlice from "./slices/examSlice";
 import questionSlice from "./slices/questionSlice";
+import mockSlice  from "./slices/mockSlice";
 
 
 const store = configureStore(
@@ -25,7 +26,8 @@ const store = configureStore(
 			employee: employeeSlice,
 			student: studentSlice,
 			exam: examSlice,
-			question: questionSlice
+			question: questionSlice,
+			mock: mockSlice
 		}
 	}
 )

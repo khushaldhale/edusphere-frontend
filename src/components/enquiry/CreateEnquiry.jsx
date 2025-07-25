@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createEnquiry } from "../../redux/slices/enquirySlice";
@@ -15,6 +16,7 @@ import {
   Send,
   Package,
 } from "lucide-react";
+import Loading from "../Loading";
 
 const CreateEnquiry = () => {
   const [courses, isLoading] = useFetchCourses();
@@ -166,6 +168,14 @@ const CreateEnquiry = () => {
     "/dashboard/enquiries",
     "enquiry"
   );
+
+  const is_loading = useSelector((state) => {
+    return state.enquiry.isLoading;
+  });
+
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">

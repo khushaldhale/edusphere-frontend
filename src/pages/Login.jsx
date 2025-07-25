@@ -31,7 +31,7 @@ const Login = () => {
     },
     login,
     validate,
-    "/",
+    "/dashboard/courses",
     "login"
   );
 

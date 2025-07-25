@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Layers, User, AlertCircle, BookOpen, Trash2, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loading from "../Loading";
 
 const Batches = () => {
   const [courses, isLoadingCourses] = useFetchCourses();
@@ -13,7 +14,11 @@ const Batches = () => {
   const batches = useSelector((state) => state.batch.batches || []);
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const navigate = useNavigate();
+  const isLoading = useSelector((state) => {
+    return state.batch.isLoading;
+  });
 
+  //  whenver the user selects course.
   useEffect(() => {
     if (selectedCourseId) {
       dispatch(getAllBatches({ course_id: selectedCourseId })).then(
@@ -27,6 +32,19 @@ const Batches = () => {
       );
     }
   }, [selectedCourseId, dispatch]);
+
+  useEffect(() => {
+    if (courses.length > 0) {
+      dispatch(getAllBatches({ course_id: courses[0]._id })).then((action) => {
+        if (action.payload.success) {
+          setSelectedCourseId(courses[0]._id);
+          toast.success(action.payload.message);
+        } else {
+          toast.error(action.payload.message);
+        }
+      });
+    }
+  }, [courses]);
 
   const buttonVariants = {
     hover: {
@@ -45,6 +63,10 @@ const Batches = () => {
       transition: { type: "spring", stiffness: 300, damping: 30 },
     },
   };
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pt-8 px-4">
@@ -72,7 +94,7 @@ const Batches = () => {
                 whileHover="hover"
                 whileTap="tap"
                 onClick={() => setSelectedCourseId(course._id)}
-                className={`px-5 py-2 rounded-full font-semibold text-sm transition-colors duration-200 shadow-md focus:outline-none
+                className={`px-5 p-4 font-semibold text-sm transition-colors duration-200 shadow-md focus:outline-none
                   ${
                     selectedCourseId === course._id
                       ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
@@ -80,7 +102,6 @@ const Batches = () => {
                   }
                 `}
               >
-                <BookOpen className="inline w-4 h-4 mr-1 -mb-[2px]" />
                 {course.course_name.charAt(0).toUpperCase() +
                   course.course_name.slice(1)}
               </motion.button>
@@ -92,36 +113,47 @@ const Batches = () => {
 
         {/* Batches Grid */}
         {batches.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="my-10 mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             <AnimatePresence>
-              {batches.map((batch) => (
-                <motion.div
-                  key={batch._id || batch.name}
-                  variants={cardVariants}
-                  whileHover="hover"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 flex flex-col"
-                >
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-purple-600" />
-                    {batch.name.charAt(0).toUpperCase() + batch.name.slice(1)}
-                  </h3>
-                  <p className="text-gray-700 mb-4 line-clamp-3">
-                    {batch.desc}
-                  </p>
+              {batches.length > 0 ? (
+                batches.map((batch) => (
+                  <motion.div
+                    key={batch._id || batch.name}
+                    variants={cardVariants} // Use the same Subject Card motion variants
+                    whileHover="hover"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                    style={{
+                      width: "100%",
+                    }}
+                    className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden group relative p-6"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Layers className="text-purple-600 w-5 h-5 flex-shrink-0" />
+                        <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
+                          {batch.name.charAt(0).toUpperCase() +
+                            batch.name.slice(1)}
+                        </h3>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4">
+                      {batch.desc &&
+                        batch.desc.charAt(0).toUpperCase() +
+                          batch.desc.slice(1)}
+                    </p>
 
-                  <div className="flex items-center text-gray-600 mb-4 font-semibold gap-2">
-                    <User className="w-4 h-4" />
-                    <span>
-                      {batch.students.length}{" "}
-                      {batch.students.length === 1 ? "Student" : "Students"}
-                    </span>
-                  </div>
-                  <div className="mt-auto  pt-4 pb-6">
-                    <div className="flex gap-2 justify-start">
+                    <div className="flex items-center text-gray-600 font-semibold gap-2 mb-4">
+                      <User className="w-4 h-4" />
+                      <span>
+                        {batch.students.length}{" "}
+                        {batch.students.length === 1 ? "Student" : "Students"}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-2 pt-4 border-t border-gray-100">
                       <motion.button
                         variants={buttonVariants}
                         whileHover="hover"
@@ -129,16 +161,16 @@ const Batches = () => {
                         onClick={() => {
                           navigate(`/dashboard/batches/${batch._id}/students`);
                         }}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg"
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg text-sm"
                       >
-                        <Eye className="w-5 h-5" />
+                        <Eye className="w-4 h-4" />
                         <span>View Students</span>
                       </motion.button>
-
                       <motion.button
                         variants={buttonVariants}
                         whileHover="hover"
                         whileTap="tap"
+                        className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm"
                         onClick={() => {
                           dispatch(deleteBatch({ batch_id: batch._id })).then(
                             (action) => {
@@ -150,16 +182,19 @@ const Batches = () => {
                             }
                           );
                         }}
-                        className="bg-red-100 hover:bg-red-200 text-red-700 py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
                         aria-label="Delete Batch"
                         title="Delete Batch"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4" />
                       </motion.button>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              ) : (
+                <p className="text-center text-gray-600 col-span-full py-8">
+                  No Batch is created yet.
+                </p>
+              )}
             </AnimatePresence>
           </div>
         ) : selectedCourseId ? (

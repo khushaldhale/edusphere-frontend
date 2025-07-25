@@ -24,6 +24,7 @@ import {
 import { SocketContext } from "../../SocketProvider";
 import { getCourses } from "../../redux/slices/courseSlice";
 import { useNavigate } from "react-router-dom";
+import Loading from "../Loading";
 
 const Enquiries = () => {
   // Selects enquiries from the Redux store
@@ -67,6 +68,10 @@ const Enquiries = () => {
     dispatch(markAsProcessed({ enquiry_id: enquiry._id }));
   };
 
+  const is_loading = useSelector((state) => {
+    return state.enquiry.isLoading;
+  });
+
   useEffect(() => {
     dispatch(getEnquiries({ status: "new" }));
     dispatch(getCourses());
@@ -103,6 +108,10 @@ const Enquiries = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  if (is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 font-sans">
@@ -154,11 +163,7 @@ const Enquiries = () => {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xl font-bold text-gray-900">
                     <User className="inline-block w-5 h-5 mr-2 text-blue-600" />
-                    {enquiry.full_name.split(" ").map((element) => {
-                      return (
-                        element.at(0).toUpperCase() + element.slice(1) + " "
-                      );
-                    })}
+                    {enquiry.full_name}
                   </h3>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(

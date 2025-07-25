@@ -1,116 +1,41 @@
 import { useDispatch, useSelector } from "react-redux";
-import useFetchCourses from "../../hooks/useFetchCourses";
-import {
-  BookOpen,
-  Layers,
-  ScrollText,
-  ListChecks,
-  Hash,
-  Timer,
-  Calendar,
-  FileText,
-} from "lucide-react";
-import { useState } from "react";
-import { getAllBatches } from "../../redux/slices/batchSlice";
-import { deleteExam, getExams } from "../../redux/slices/examSlice";
+import { ScrollText, ListChecks, Hash, Timer, Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import { clear_exams, deleteExam } from "../../redux/slices/examSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import ExamFilter from "./ExamFilter";
+import { motion } from "framer-motion";
+import { Edit3, Trash2, Eye } from "lucide-react";
 
 const Exams = () => {
-  const [courses, isLoading] = useFetchCourses();
   const dispatch = useDispatch();
-  const batches = useSelector((state) => state.batch.batches || []);
-  const exams = useSelector((state) => state.exam.exams || []);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
+  const exams = useSelector((state) => state.exam.exams || []);
   const navigate = useNavigate();
 
-  const get_batches = (event) => {
-    const courseId = event?.target?.value;
-    setSelectedCourse(courseId);
-    setSelectedBatch(""); // reset batch when new course selected
-    if (courseId) {
-      dispatch(getAllBatches({ course_id: courseId }));
-    }
-  };
-
-  const get_exams = (event) => {
-    const batchId = event?.target?.value;
-    setSelectedBatch(batchId);
-    if (batchId) {
-      dispatch(getExams({ batch_id: batchId }));
-    }
-  };
+  useEffect(() => {
+    return () => {
+      dispatch(clear_exams());
+    };
+  });
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-10 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-          <ScrollText className="w-8 h-8 text-purple-600" />
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 flex  jts items-center gap-3">
           Exams
         </h1>
 
         {/* Select Filters */}
-        <form className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border border-gray-100 p-6 mb-8 flex flex-col md:flex-row gap-6 md:items-center">
-          <div className="flex-1 space-y-1">
-            <label
-              htmlFor="course"
-              className="flex items-center font-semibold text-gray-700 text-sm mb-1"
-            >
-              <BookOpen className="w-4 h-4 mr-2 text-blue-500" />
-              Course
-            </label>
-            <div className="relative">
-              <select
-                name="course"
-                id="course"
-                value={selectedCourse}
-                onChange={get_batches}
-                className="w-full px-4 py-3 border-2 rounded-xl
-                  border-gray-200 focus:border-purple-500 focus:ring-purple-200 focus:ring-4 focus:ring-opacity-20 outline-none bg-white transition-all duration-200 appearance-none hover:border-gray-300"
-              >
-                <option value="">Select any course</option>
-                {courses.length > 0 &&
-                  courses.map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.course_name}
-                    </option>
-                  ))}
-              </select>
-              <BookOpen className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
-            </div>
-          </div>
-
-          <div className="flex-1 space-y-1">
-            <label
-              htmlFor="batch"
-              className="flex items-center font-semibold text-gray-700 text-sm mb-1"
-            >
-              <Layers className="w-4 h-4 mr-2 text-purple-600" />
-              Batch
-            </label>
-            <div className="relative">
-              <select
-                name="batch"
-                id="batch"
-                value={selectedBatch}
-                onChange={get_exams}
-                className="w-full px-4 py-3 border-2 rounded-xl
-                  border-gray-200 focus:border-purple-500 focus:ring-purple-200 focus:ring-4 focus:ring-opacity-20 outline-none bg-white transition-all duration-200 appearance-none hover:border-gray-300"
-              >
-                <option value="">Select any batch</option>
-                {batches.length > 0 &&
-                  batches.map((batch) => (
-                    <option key={batch._id} value={batch._id}>
-                      {batch.name}
-                    </option>
-                  ))}
-              </select>
-              <Layers className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
-            </div>
-          </div>
-        </form>
+        <ExamFilter
+          selectedBatch={selectedBatch}
+          selectedCourse={selectedCourse}
+          setSelectedBatch={setSelectedBatch}
+          setSelectedCourse={setSelectedCourse}
+        ></ExamFilter>
 
         {/* Exams List */}
         {exams.length > 0 ? (
@@ -149,39 +74,58 @@ const Exams = () => {
                     {exam.exam_date?.split("T")[0]}
                   </div>
                 </div>
+                {/*  action buttons */}
+                <div className="px-4 pt-4 mt-auto">
+                  {/* Add Students - Full width primary button */}
+                  <motion.button
+                    whileHover="hover"
+                    whileTap="tap"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm mb-3"
+                    onClick={() => {
+                      navigate(`/dashboard/exams/${exam._id}/questions`);
+                    }}
+                  >
+                    <Eye className="w-4 h-4" />
+                    <span>Add Students</span>
+                  </motion.button>
 
-                {/*   action  buttons */}
-                <button
-                  onClick={() => {
-                    dispatch(deleteExam({ exam_id: exam._id })).then(
-                      (action) => {
-                        if (action.payload.success) {
-                          toast.success(action.payload.message);
-                        } else {
-                          toast.error(action.payload.message);
-                        }
-                      }
-                    );
-                  }}
-                >
-                  Delete Exam{" "}
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/dashboard/exams/update", {
-                      state: exam,
-                    });
-                  }}
-                >
-                  Update Exam{" "}
-                </button>
-                <button
-                  onClick={() => {
-                    navigate(`/dashboard/exams/${exam._id}/questions`);
-                  }}
-                >
-                  Add Questions
-                </button>
+                  {/* Row of Update & Delete buttons */}
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
+                        navigate("/dashboard/exams/update", { state: exam });
+                      }}
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Update Exam"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Update</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
+                        dispatch(deleteExam({ exam_id: exam._id })).then(
+                          (action) => {
+                            if (action.payload.success) {
+                              toast.success(action.payload.message);
+                            } else {
+                              toast.error(action.payload.message);
+                            }
+                          }
+                        );
+                      }}
+                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Delete Exam"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </motion.button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

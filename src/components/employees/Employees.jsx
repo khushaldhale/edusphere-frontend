@@ -5,11 +5,28 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, Trash2, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Loading from "../Loading";
 
 const Employees = () => {
   const employees = useSelector((state) => state.employee.employees || []);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const isLoading = useSelector((state) => {
+    return state.employee.isLoading;
+  });
+
+  // Animation variants for employee cards
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
+  };
+
+  const buttonVariants = {
+    hover: { scale: 1.04 },
+    tap: { scale: 0.97 },
+  };
 
   useEffect(() => {
     dispatch(getEmployees()).then((action) => {
@@ -21,12 +38,9 @@ const Employees = () => {
     });
   }, [dispatch]);
 
-  // Animation variants for employee cards
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-    exit: { opacity: 0, y: -20, transition: { duration: 0.3 } },
-  };
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen w-[100vw] bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-6 overflow-x-hidden">
@@ -46,32 +60,39 @@ const Employees = () => {
               {employees.map((employee) => (
                 <motion.div
                   key={employee?._id || employee?.email}
-                  variants={cardVariants}
-                  exit="exit"
-                  layout
-                  className="bg-white/90  backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 flex flex-col"
+                  variants={cardVariants} // same variant naming from your previous example
+                  whileHover="hover"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 overflow-hidden group relative p-6 w-full flex flex-col"
                 >
                   {/* Employee Name */}
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <User className="w-5 h-5 text-purple-600" />
-                    {employee?.fname} {employee?.lname}
-                  </h2>
+                  <div className="flex items-center gap-2 mb-3">
+                    <User className="text-purple-600 w-5 h-5 flex-shrink-0" />
+                    <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-300 leading-tight">
+                      {employee?.fname} {employee?.lname}
+                    </h3>
+                  </div>
 
                   {/* Email */}
-                  <p className="text-gray-700 mb-2 break-words">
+                  <p className="text-sm text-gray-600 line-clamp-3 leading-relaxed mb-4 break-words">
                     {employee?.email}
                   </p>
 
                   {/* Account Type */}
-                  <p className="text-sm text-gray-600 font-semibold mb-6 capitalize">
+                  <p className="text-sm text-gray-600 font-semibold mb-4 capitalize">
                     Role: {employee?.accountType}
                   </p>
 
                   {/* Actions */}
-                  <div className="mt-auto flex gap-3">
-                    <button
-                      type="button"
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-shadow shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                  <div className="flex gap-2 pt-4 border-t border-gray-100 mt-auto">
+                    <motion.button
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg text-sm"
                       onClick={() => {
                         navigate(
                           `/dashboard/employees/${employee._id}/update`,
@@ -81,20 +102,22 @@ const Employees = () => {
                         );
                       }}
                     >
-                      <Edit3 className="w-5 h-5" />
+                      <Edit3 className="w-4 h-4" />
                       <span>Update</span>
-                    </button>
+                    </motion.button>
 
-                    <button
-                      type="button"
-                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-3 rounded-xl transition-shadow shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                    <motion.button
+                      variants={buttonVariants}
+                      whileHover="hover"
+                      whileTap="tap"
+                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2 shadow-md hover:shadow-lg text-sm"
                       onClick={() => {
                         dispatch(deleteEmployee({ employee_id: employee._id }));
                       }}
                     >
-                      <Trash2 className="w-5 h-5" />
+                      <Trash2 className="w-4 h-4" />
                       <span>Delete</span>
-                    </button>
+                    </motion.button>
                   </div>
                 </motion.div>
               ))}

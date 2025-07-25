@@ -1,6 +1,7 @@
 import { Calendar, StickyNote, RefreshCcw } from "lucide-react";
 import useForm from "../../hooks/useForm";
 import { changeEnquiryStatus } from "../../redux/slices/enquirySlice";
+import { useSelector } from "react-redux";
 
 const FollowUpForm = ({ enquiry_id }) => {
   const validate = (input_name, value, formData) => {
@@ -26,6 +27,14 @@ const FollowUpForm = ({ enquiry_id }) => {
     "/dashboard/enquiries",
     "follow-up"
   );
+
+  const is_loading = useSelector((state) => {
+    return state.enquiry.isLoading;
+  });
+
+  if (is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="max-w-lg mx-auto px-4 py-8">

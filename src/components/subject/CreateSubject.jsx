@@ -3,6 +3,8 @@ import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createSubject } from "../../redux/slices/subjectSlice";
 import SubjectForm from "./SubjectForm";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const CreateSubject = () => {
   const validate = (input_name, value, formData) => {
@@ -48,6 +50,14 @@ const CreateSubject = () => {
     validate,
     "/dashboard/courses"
   );
+
+  const isLoading = useSelector((state) => {
+    return state.subject.isLoading;
+  });
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <SubjectForm

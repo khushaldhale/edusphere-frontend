@@ -22,7 +22,7 @@ import {
   Target,
   Rocket,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Mock data - replace with your actual data
 const coursesData = [
@@ -205,6 +205,14 @@ const Index = () => {
                 {item}
               </motion.a>
             ))}
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link
+                to={"/login"}
+                className="text-foreground hover:text-primary transition-colors"
+              >
+                Login
+              </Link>
+            </motion.div>
           </div>
           <div
             onClick={() => {
@@ -655,78 +663,7 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* Trainers Section */}
-      {/* <motion.section
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        viewport={{ once: true }}
-        className="py-20 bg-muted/30"
-      >
-        <div className="container mx-auto md:px-3">
-          <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">
-              Expert Trainers
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Learn from industry experts with years of real-world experience
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ amount: 0.3 }}
-            className="flex flex-wrap justify-center gap-6"
-          >
-            {trainersData.map((trainer, index) => (
-              <motion.div
-                key={index}
-                variants={fadeInUp}
-                whileHover={{
-                  scale: 1.03,
-                  boxShadow: "0 10px 30px rgba(0, 172, 240, 0.2)",
-                  transition: {
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 20,
-                  },
-                }}
-                className="w-[400px]"
-              >
-                <Card className="text-center overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm">
-                  <CardContent className="pt-6">
-                    <motion.img
-                      whileHover={{ scale: 1.1 }}
-                      src={trainer.image}
-                      alt={trainer.name}
-                      className="w-32 h-32 rounded-full mx-auto mb-6 object-cover transition-transform duration-300 group-hover:shadow-glow"
-                    />
-                    <h3 className="font-semibold text-lg mb-1">
-                      {trainer.name}
-                    </h3>
-                    <p className="text-primary font-semibold text-sm mb-1">
-                      {trainer.expertise}
-                    </p>
-                    <p className="text-muted-foreground text-sm mb-3">
-                      {trainer.experience}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="text-accent border-accent text-xs"
-                    >
-                      {trainer.company}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.section> */}
-
-      {/* update the same section with Trainers Data  */}
+      {/* Trainers Section  */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -738,11 +675,10 @@ const Index = () => {
         <div className="container mx-auto md:px-3">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">
-              Recent Placements
+              Our Trainers
             </h2>
             <p className="text-lg md:text-xl text-black/70 max-w-2xl mx-auto">
-              Our students are getting placed in top companies with amazing
-              packages
+              We do have top trainers with industry exeperince
             </p>
           </motion.div>
 
@@ -753,7 +689,7 @@ const Index = () => {
             viewport={{ amount: 0.3 }}
             className="flex flex-wrap justify-center gap-6"
           >
-            {placementsData.map((placement, index) => (
+            {trainersData.map((trainer, index) => (
               <motion.div
                 key={index}
                 variants={fadeInUp}
@@ -771,25 +707,25 @@ const Index = () => {
                 <Card className="relative overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm border border-black bg-white">
                   {/* Company name top-right label */}
                   <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md select-none z-10">
-                    {placement.company}
+                    {trainer.expertise}
                   </div>
                   <CardContent className="pt-10 px-6 pb-8 flex flex-col items-center text-center">
                     <img
-                      src={placement.image}
-                      alt={placement.name}
+                      src={trainer.image}
+                      alt={trainer.name}
                       className="w-20 h-20 rounded-full mb-4 object-cover shadow-sm border border-black"
                     />
                     <h3 className="font-semibold text-lg text-black mb-1">
-                      {placement.name}
+                      {trainer.name}
                     </h3>
                     <p className="text-black/70 text-sm mb-4 italic max-w-[320px]">
                       {/* Using description-like placeholder for feedback */}"
-                      {placement.feedback ||
+                      {trainer.desc ||
                         "This course helped me achieve my dream job with excellent placement support!"}
                       "
                     </p>
                     <p className="text-black/60 text-xs mb-6">
-                      {placement.course}
+                      {trainer.company}
                     </p>
 
                     <motion.div
@@ -807,7 +743,7 @@ const Index = () => {
                         className="text-black  border-2 border-gray-900 hover:border-blue-600 hover:text-blue-600 w-full font-semibold"
                       >
                         <Calendar className="mr-2 h-5 w-5" />
-                        {placement.package}
+                        {trainer.experience}
                       </Button>
                     </motion.div>
                   </CardContent>

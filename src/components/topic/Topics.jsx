@@ -5,7 +5,8 @@ import { deleteTopic, getTopics } from "../../redux/slices/topicSlice";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import { Download, Edit3, Trash2, NotebookPen } from "lucide-react";
-import CreateTopic from "./createTopic";
+import CreateTopic from "./CreateTopic";
+import Loading from "../Loading";
 
 const cardHoverVariants = {
   hover: {
@@ -27,6 +28,10 @@ const Topics = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isLoading = useSelector((state) => {
+    return state.topic.isLoading;
+  });
+
   useEffect(() => {
     dispatch(getTopics({ subject_id })).then((action) => {
       if (action.payload.success) {
@@ -37,8 +42,12 @@ const Topics = () => {
     });
   }, [dispatch, subject_id]);
 
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
+
   return (
-    <div className="min-h-screen my-8 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4 font-sans">
       <div className="mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -30 }}

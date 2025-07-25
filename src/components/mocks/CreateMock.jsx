@@ -3,179 +3,111 @@ import useFetchCourses from "../../hooks/useFetchCourses";
 import { getAllBatches } from "../../redux/slices/batchSlice";
 import { getSubjects } from "../../redux/slices/subjectSlice";
 import useForm from "../../hooks/useForm";
-import { createExam, updateExam } from "../../redux/slices/examSlice";
+import { createMock, updateMock } from "../../redux/slices/mockSlice";
 import {
   FileText,
-  Layers,
   BookOpen,
-  Users,
   ListChecks,
-  Timer,
-  Calendar,
+  Layers,
   Hash,
   AlertCircle,
   ScrollText,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
-const CreateExam = () => {
+const CreateMock = () => {
   const [courses, isLoading] = useFetchCourses();
-  const dispatch = useDispatch();
   const location = useLocation();
   const data = location.state;
-  const required_path = location.pathname.split("/").at(-1);
+  const dispatch = useDispatch();
   const batches = useSelector((state) => state.batch.batches);
   const subjects = useSelector((state) => state.subject.subjects);
-  const durationRef = useRef();
-  const marksRef = useRef();
   let thunk;
+  const required_path = location.pathname.split("/").at(-1);
+
   if (required_path === "update") {
-    thunk = updateExam;
-    data.exam_date = data?.exam_date?.split("T")[0];
+    thunk = updateMock;
   } else {
-    thunk = createExam;
+    thunk = createMock;
   }
 
   const validate = (input_name, value, formData) => {
     let error = "";
-
-    switch (input_name) {
-      case "name": {
-        if (!value.trim()) {
-          error = "Name is required.";
-        } else if (value && value.length < 2) {
-          error = "Minimum 2 characters are required.";
-        }
-        break;
-      }
-      case "desc": {
-        if (!value.trim()) {
-          error = "Description is required.";
-        } else if (value && value.length < 10) {
-          error = "Minimum 10 characters are required.";
-        }
-        break;
-      }
-      case "subject": {
-        if (!value.trim()) {
-          error = "Subject is required.";
-        }
-        break;
-      }
-      case "total_marks": {
-        if (typeof value !== "number") {
-          error = "Provide Number only.";
-        } else if (typeof value === "number" && value < 10) {
-          error = "Minimum marks for the exam is 10.";
-        }
-        break;
-      }
-      case "duration": {
-        if (typeof value !== "number") {
-          error = "Provide Number only.";
-        } else if (typeof value === "number" && value < 15) {
-          error = "Minimum time for the exam is 15.";
-        }
-        break;
-      }
-      case "exam_date": {
-        let currentDate = new Date(Date.now());
-        if (new Date(value) < currentDate) {
-          error = "Date cannot be in past.";
-        }
-        break;
-      }
-      case "course": {
-        if (!value.trim()) {
-          error = "Course is required.";
-        }
-        break;
-      }
-      case "batch": {
-        if (!value.trim()) {
-          error = "Batch is required.";
-        }
-        break;
-      }
-    }
+    // You can add validation rules here later
     return error;
   };
 
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
-      name: data?.name || "",
-      desc: data?.desc || "",
-      course: data?.course || "",
-      batch: data?.batch || "",
-      subject: data?.subject || "",
-      total_marks: data?.total_marks || "",
-      duration: data?.duration || "",
-      exam_date: data?.exam_date || "",
-      exam_id: data?._id || "",
+      name: data.name || "",
+      desc: data.desc || "",
+      total_marks: data.total_marks || "",
+      course: data.course || "",
+      subject: data.subject || "",
+      batch_id: data.batch_id || "",
+      mock_id: data._id || "",
     },
     thunk,
     validate,
-    "/dashboard/exams",
-    "exam"
+    "/dashboard/mocks",
+    "mock"
   );
 
-  // When selecting a course, fetch batches and subjects for that course
   const handleCourseChange = (event) => {
-    const { value } = event.target;
-    setFormData((prev) => ({ ...prev, course: value, batch: "", subject: "" }));
+    const value = event.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      course: value,
+      batch_id: "",
+      subject: "",
+    }));
     dispatch(getAllBatches({ course_id: value }));
     dispatch(getSubjects({ course_id: value }));
+    changeHandler(event);
   };
 
   useEffect(() => {
-    if (required_path === "update") {
-      durationRef.current.value = data.duration;
-      marksRef.current.value = data.total_marks;
-      dispatch(getSubjects({ course_id: data.course }));
+    dispatch(getSubjects({ course_id: data.course }));
+    if (required_path === "update" && subjects.length > 0) {
+      setFormData((prevData) => {
+        return {
+          ...prevData,
+          subject: data.subject,
+        };
+      });
     }
-  }, [dispatch]);
-
-  useEffect(() => {
-    setFormData((prevData) => {
-      return {
-        ...prevData,
-        subject: data?.subject,
-      };
-    });
-  }, [subjects]);
+  }, []);
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen py-8 px-4">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
+      <div className="max-w-3xl w-full">
         <form
-          onSubmit={(event) => {
-            durationRef.current.value = "";
-            submitHandler(event);
-          }}
+          onSubmit={submitHandler}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
         >
           <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-8">
             <ScrollText className="w-7 h-7 text-blue-600 mr-2" />
-            {required_path === "update" ? "Update" : "Create New"} Exam
+            Create Mock Test
           </h2>
 
-          {/* Exam Name */}
+          {/* Name */}
           <div className="space-y-2">
             <label
               htmlFor="name"
               className="flex items-center text-sm font-semibold text-gray-700"
             >
               <FileText className="w-4 h-4 mr-2 text-purple-600" />
-              Exam Name <span className="text-red-500 ml-1">*</span>
+              Mock Name <span className="text-red-500 ml-1">*</span>
             </label>
             <input
-              id="name"
+              type="text"
               name="name"
-              required
-              placeholder="Enter exam name (e.g., Midterm)"
+              id="name"
               value={formData.name}
               onChange={changeHandler}
+              required
+              placeholder="Enter mock title"
               className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
                 ${
                   errors.name
@@ -205,7 +137,7 @@ const CreateExam = () => {
               id="desc"
               required
               rows={3}
-              placeholder="Brief description, syllabus or guidelines for the exam."
+              placeholder="Describe this mock..."
               value={formData.desc}
               onChange={changeHandler}
               className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none resize-none bg-white hover:border-gray-300
@@ -223,28 +155,28 @@ const CreateExam = () => {
             )}
           </div>
 
-          {/* Course selection */}
+          {/* Course */}
           <div className="space-y-2">
             <label
-              className="flex items-center text-sm font-semibold text-gray-700"
               htmlFor="course"
+              className="flex items-center text-sm font-semibold text-gray-700"
             >
               <BookOpen className="w-4 h-4 mr-2 text-blue-600" />
               Course <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="relative">
               <select
-                id="course"
                 name="course"
+                id="course"
                 required
                 value={formData.course}
                 onChange={handleCourseChange}
                 className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.course
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
+                  ${
+                    errors.course
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
+                  } focus:ring-4 focus:ring-opacity-20`}
               >
                 <option value="">Select any course</option>
                 {courses.length > 0 &&
@@ -266,28 +198,28 @@ const CreateExam = () => {
             )}
           </div>
 
-          {/* Batch selection (depends on selected course) */}
+          {/* Batch */}
           <div className="space-y-2">
             <label
+              htmlFor="batch_id"
               className="flex items-center text-sm font-semibold text-gray-700"
-              htmlFor="batch"
             >
               <Layers className="w-4 h-4 mr-2 text-purple-600" />
               Batch <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="relative">
               <select
-                id="batch"
-                name="batch"
+                name="batch_id"
+                id="batch_id"
                 required
-                value={formData.batch}
+                value={formData.batch_id}
                 onChange={changeHandler}
                 className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.batch
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
+                  ${
+                    errors.batch_id
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
+                  } focus:ring-4 focus:ring-opacity-20`}
               >
                 <option value="">Select any batch</option>
                 {batches.length > 0 &&
@@ -301,37 +233,36 @@ const CreateExam = () => {
                 <Layers className="w-4 h-4 text-gray-300" />
               </div>
             </div>
-
-            {errors.batch && (
+            {errors.batch_id && (
               <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
                 <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.batch}</span>
+                <span>{errors.batch_id}</span>
               </div>
             )}
           </div>
 
-          {/* Subject selection (depends on selected course) */}
+          {/* Subject */}
           <div className="space-y-2">
             <label
-              className="flex items-center text-sm font-semibold text-gray-700"
               htmlFor="subject"
+              className="flex items-center text-sm font-semibold text-gray-700"
             >
               <ListChecks className="w-4 h-4 mr-2 text-blue-500" />
               Subject <span className="text-red-500 ml-1">*</span>
             </label>
             <div className="relative">
               <select
-                id="subject"
                 name="subject"
+                id="subject"
                 required
                 value={formData.subject}
                 onChange={changeHandler}
                 className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.subject
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
+                  ${
+                    errors.subject
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
+                  } focus:ring-4 focus:ring-opacity-20`}
               >
                 <option value="">Select any subject</option>
                 {subjects.length > 0 &&
@@ -365,12 +296,12 @@ const CreateExam = () => {
             <input
               type="number"
               min="0"
-              id="total_marks"
               name="total_marks"
+              id="total_marks"
+              value={formData.total_marks}
+              onChange={changeHandler}
               required
               placeholder="e.g., 100"
-              ref={marksRef}
-              onChange={changeHandler}
               className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
                 ${
                   errors.total_marks
@@ -378,7 +309,6 @@ const CreateExam = () => {
                     : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
                 } focus:ring-4 focus:ring-opacity-20`}
             />
-
             {errors.total_marks && (
               <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
                 <AlertCircle className="w-4 h-4 mr-1" />
@@ -387,82 +317,19 @@ const CreateExam = () => {
             )}
           </div>
 
-          {/* Duration */}
-          <div className="space-y-2">
-            <label
-              htmlFor="duration"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <Timer className="w-4 h-4 mr-2 text-blue-500" />
-              Duration (minutes) <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              id="duration"
-              name="duration"
-              required
-              ref={durationRef}
-              placeholder="e.g., 120"
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
-                  errors.duration
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
-
-            {errors.duration && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.duration}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Exam Date */}
-          <div className="space-y-2">
-            <label
-              htmlFor="exam_date"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <Calendar className="w-4 h-4 mr-2 text-green-600" />
-              Exam Date <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="datetime-local"
-              id="exam_date"
-              name="exam_date"
-              required
-              value={formData.exam_date}
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
-                  errors.exam_date
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
-
-            {errors.exam_date && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.exam_date}</span>
-              </div>
-            )}
-          </div>
-
           {/* Submit */}
           <div className="pt-6 border-t border-gray-200">
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600
+                hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400
+                disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold
+                py-4 px-8 rounded-xl text-lg transition-all duration-200 transform
+                hover:scale-105 focus:ring-4 focus:ring-purple-200 shadow-lg
+                hover:shadow-xl flex items-center justify-center gap-2"
             >
               <ScrollText className="w-5 h-5" />
-              <span>
-                {required_path === "update" ? "Update" : "Create "} Exam
-              </span>
+              <span>Create Mock</span>
             </button>
           </div>
         </form>
@@ -471,4 +338,4 @@ const CreateExam = () => {
   );
 };
 
-export default CreateExam;
+export default CreateMock;

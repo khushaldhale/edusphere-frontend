@@ -2,10 +2,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteSubject, getSubjects } from "../../redux/slices/subjectSlice";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Edit3, Eye, Trash2, FileText } from "lucide-react";
+import { Edit3, Eye, Trash2, FileText } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import CreateSubject from "./CreateSubject";
+import Loading from "../Loading";
 
 const Subjects = () => {
   const dispatch = useDispatch();
@@ -13,6 +14,9 @@ const Subjects = () => {
   const navigate = useNavigate();
   const course_id = useParams().id;
   const [addSubject, setAddSubject] = useState(false);
+  const isLoading = useSelector((state) => {
+    return state.subject.isLoading;
+  });
 
   const buttonVariants = {
     hover: {
@@ -57,6 +61,10 @@ const Subjects = () => {
       }
     });
   }, [dispatch]);
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-8 px-4 font-sans">

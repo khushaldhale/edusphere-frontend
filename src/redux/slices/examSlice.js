@@ -91,6 +91,11 @@ export const examSlice = createSlice(
 	{
 		name: "exam",
 		initialState,
+		reducers: {
+			clear_exams: (state, action) => {
+				state.exams = []
+			}
+		},
 		extraReducers: (builder) => {
 
 
@@ -101,7 +106,7 @@ export const examSlice = createSlice(
 				.addCase(createExam.fulfilled, (state, action) => {
 					state.isLoading = false;
 					state.isError = false;
-					state.exams = [...state.exams, action.payload.data];
+
 				})
 				.addCase(createExam.rejected, (state, action) => {
 					state.isLoading = false;
@@ -168,5 +173,7 @@ export const examSlice = createSlice(
 
 	}
 )
+
+export const { clear_exams } = examSlice.actions
 
 export default examSlice.reducer; 

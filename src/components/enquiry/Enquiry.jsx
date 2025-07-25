@@ -22,6 +22,7 @@ import EnrollmentForm from "../enrollment/EnrollmentForm";
 import FollowUpForm from "./FollowUpForm";
 import { particularEnrollment } from "../../redux/slices/enrollmentSlice";
 import useFetchCourses from "../../hooks/useFetchCourses";
+import Loading from "../Loading";
 
 const Enquiry = () => {
   const location = useLocation();
@@ -70,8 +71,15 @@ const Enquiry = () => {
     if (enquiry.status === "converted") {
       dispatch(particularEnrollment({ student_id: enquiry._id }));
     }
-    // eslint-disable-next-line
   }, []);
+
+  const is_loading = useSelector((state) => {
+    return state.enquiry.isLoading;
+  });
+
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4 font-sans">
@@ -90,18 +98,14 @@ const Enquiry = () => {
         <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h2 className="text-3xl font-bold text-gray-900 flex items-center">
             <User className="inline-block w-7 h-7 mr-3 text-blue-600" />
-            {enquiry.full_name
-              .split(" ")
-              .map(
-                (word) => word.charAt(0).toUpperCase() + word.slice(1) + " "
-              )}
+            {enquiry.full_name}
           </h2>
           <span
             className={`px-4 py-2 rounded-full text-sm font-semibold border ${getStatusColor(
               enquiry.status
             )}`}
           >
-            {enquiry.status.replace("-", " ")}
+            {enquiry?.status?.replace("-", " ")}
           </span>
         </div>
 
@@ -344,7 +348,11 @@ const Enquiry = () => {
         {/* Forms for status change */}
         {showForm === "converted" && (
           <div className="mt-8">
-            <EnrollmentForm enquiry_id={enquiry._id}></EnrollmentForm>
+            <EnrollmentForm
+              courses={courses}
+              enquiry_id={enquiry._id}
+              isLoading={isLoading}
+            ></EnrollmentForm>
           </div>
         )}
         {showForm === "follow" && (

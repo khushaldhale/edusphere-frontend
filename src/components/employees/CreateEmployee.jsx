@@ -5,6 +5,9 @@ import {
   updateEmployee,
 } from "../../redux/slices/employeeSlice";
 import { useLocation } from "react-router-dom";
+import Loading from "../Loading";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 const CreateEmployee = () => {
   const validate = (input_name, value, formData) => {
@@ -57,6 +60,9 @@ const CreateEmployee = () => {
     }
     return error || "";
   };
+  const isLoading = useSelector((state) => {
+    return state.employee.isLoading;
+  });
   const location = useLocation();
   const data = location.state;
   const required_path = location.pathname.split("/").at(-1);
@@ -66,7 +72,7 @@ const CreateEmployee = () => {
   } else {
     thunk = createEmployee;
   }
-  const [formData, changeHandler, submitHandler, errors] = useForm(
+  const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
       fname: data?.fname || "",
       lname: data?.lname || "",
@@ -80,6 +86,25 @@ const CreateEmployee = () => {
     "/dashboard/employees",
     "employee"
   );
+
+  useEffect(() => {
+    if (required_path !== "update") {
+      setFormData((prevData) => {
+        return {
+          fname: "",
+          lname: "",
+          email: "",
+          password: "",
+          accountType: "",
+          employee_id: "",
+        };
+      });
+    }
+  }, [required_path]);
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="bg-gradient-to-br px-6 max-w-3xl mx-auto">
