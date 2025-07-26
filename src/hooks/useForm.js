@@ -184,6 +184,11 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 
 			}
 
+		} else if (url === "question") {
+			if (formData.options.length < 2) {
+				custom_error = "Minimum 2 options are required.";
+				action = false;
+			}
 		}
 
 
@@ -203,7 +208,9 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 						if (url === "login" && action.payload.data.accountType === "receptionist") {
 							navigate("/dashboard/create-enquiry")
 						} else {
-							navigate(navigate_url)
+							if (navigate_url !== "") {
+								navigate(navigate_url)
+							}
 						}
 
 						if (typeof state_update === "function") {

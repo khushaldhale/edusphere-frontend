@@ -7,20 +7,26 @@ import { useNavigate } from "react-router-dom";
 import ExamFilter from "./ExamFilter";
 import { motion } from "framer-motion";
 import { Edit3, Trash2, Eye } from "lucide-react";
+import Loading from "../Loading";
 
 const Exams = () => {
   const dispatch = useDispatch();
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedBatch, setSelectedBatch] = useState("");
-  const exams = useSelector((state) => state.exam.exams || []);
+  const exams = useSelector((state) => state.exam.exams);
   const navigate = useNavigate();
+  const subjects = useSelector((state) => {
+    return state.subject.subjects;
+  });
+  const isLoading = useSelector((state) => state.exam.isLoading);
 
   useEffect(() => {
-    return () => {
-      dispatch(clear_exams());
-    };
-  });
+    dispatch(clear_exams());
+  }, []);
 
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-10 px-4">
       <div className="max-w-6xl mx-auto">
@@ -32,9 +38,10 @@ const Exams = () => {
         {/* Select Filters */}
         <ExamFilter
           selectedBatch={selectedBatch}
-          selectedCourse={selectedCourse}
           setSelectedBatch={setSelectedBatch}
+          selectedCourse={selectedCourse}
           setSelectedCourse={setSelectedCourse}
+          exams={exams}
         ></ExamFilter>
 
         {/* Exams List */}
@@ -66,7 +73,13 @@ const Exams = () => {
                   <div className="flex items-center gap-2">
                     <ListChecks className="w-4 h-4 text-purple-500" />
                     <span className="font-semibold">Subject:</span>{" "}
-                    {exam.subject}
+                    {
+                      subjects.find((subject) => {
+                        if (subject._id === exam.subject) {
+                          return true;
+                        }
+                      }).name
+                    }
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-green-600" />
@@ -82,11 +95,13 @@ const Exams = () => {
                     whileTap="tap"
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm mb-3"
                     onClick={() => {
-                      navigate(`/dashboard/exams/${exam._id}/questions`);
+                      navigate(`/dashboard/exams/${exam._id}/questions`, {
+                        state: { exam_id: exam._id },
+                      });
                     }}
                   >
                     <Eye className="w-4 h-4" />
-                    <span>Add Students</span>
+                    <span>Add Questions</span>
                   </motion.button>
 
                   {/* Row of Update & Delete buttons */}

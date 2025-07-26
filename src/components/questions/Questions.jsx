@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteQuestion, getQuestions } from "../../redux/slices/questionSlice";
 import { toast } from "react-toastify";
+import { Trash2, Pencil } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Questions = () => {
   const params = useParams();
@@ -12,6 +14,8 @@ const Questions = () => {
   const dispatch = useDispatch();
   const questions = useSelector((state) => state.question.questions);
   const navigate = useNavigate();
+
+  console.log("questions : ", questions);
 
   useEffect(() => {
     dispatch(getQuestions({ exam_id }));
@@ -69,7 +73,7 @@ const Questions = () => {
                     key={optionIdx}
                     className={`flex items-center gap-2 ${
                       question.answer === option
-                        ? "font-bold text-blue-600"
+                        ? "text-blue-600"
                         : "text-black"
                     }`}
                   >
@@ -91,30 +95,40 @@ const Questions = () => {
                 </span>
               </div>
               {/*   action  button */}
-              <button
-                onClick={() => {
-                  dispatch(deleteQuestion({ question_id: question._id })).then(
-                    (action) => {
+              <div className="flex gap-2 pt-4 border-t border-gray-100">
+                <motion.button
+                  whileHover="hover"
+                  whileTap="tap"
+                  className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm"
+                  onClick={() => {
+                    dispatch(
+                      deleteQuestion({ question_id: question._id })
+                    ).then((action) => {
                       if (action.payload.success) {
                         toast.success(action.payload.message);
                       } else {
                         toast.error(action.payload.message);
                       }
-                    }
-                  );
-                }}
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => {
-                  navigate(`/dashboard/exams/${exam_id}/questions/update`, {
-                    state: question,
-                  });
-                }}
-              >
-                Update
-              </button>
+                    });
+                  }}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="ml-2">Delete</span>
+                </motion.button>
+                <motion.button
+                  whileHover="hover"
+                  whileTap="tap"
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm"
+                  onClick={() => {
+                    navigate(`/dashboard/exams/${exam_id}/questions/update`, {
+                      state: question,
+                    });
+                  }}
+                >
+                  <Pencil className="w-4 h-4" />
+                  <span className="ml-2">Update</span>
+                </motion.button>
+              </div>
             </div>
           ))}
         </div>

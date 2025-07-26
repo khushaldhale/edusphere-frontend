@@ -1,17 +1,20 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import { useDispatch, useSelector } from "react-redux";
 import { BookOpen, Layers } from "lucide-react";
 import { getAllBatches } from "../../redux/slices/batchSlice";
-import { getExams } from "../../redux/slices/examSlice";
-import { getMocks } from "../../redux/slices/mockSlice";
+import { clear_exams, getExams } from "../../redux/slices/examSlice";
+import { clear_mock, getMocks } from "../../redux/slices/mockSlice";
 import { useLocation } from "react-router-dom";
+import { getSubjects } from "../../redux/slices/subjectSlice";
 
 const ExamFilter = ({
-  selectedCourse,
-  setSelectedCourse,
   selectedBatch,
   setSelectedBatch,
+  selectedCourse,
+  setSelectedCourse,
+  exams,
+  mocks,
 }) => {
   const [courses, isLoading] = useFetchCourses();
   const dispatch = useDispatch();
@@ -21,9 +24,16 @@ const ExamFilter = ({
   const get_batches = (event) => {
     const courseId = event?.target?.value;
     setSelectedCourse(courseId);
-    setSelectedBatch(""); // reset batch when new course selected
+    if (exams?.length > 0) {
+      dispatch(clear_exams());
+    }
+    if (mocks?.length > 0) {
+      dispatch(clear_mock());
+    }
+    //  get subjects also
     if (courseId) {
       dispatch(getAllBatches({ course_id: courseId }));
+      dispatch(getSubjects({ course_id: courseId }));
     }
   };
 
@@ -40,6 +50,7 @@ const ExamFilter = ({
     setSelectedBatch(batchId);
     dispatch(getMocks({ batch_id: batchId }));
   };
+
   return (
     <form className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border border-gray-100 p-6 mb-8 flex flex-col md:flex-row gap-6 md:items-center">
       <div className="flex-1 space-y-1">

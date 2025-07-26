@@ -14,7 +14,8 @@ import {
   ScrollText,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import Loading from "../Loading";
 
 const CreateMock = () => {
   const [courses, isLoading] = useFetchCourses();
@@ -23,8 +24,10 @@ const CreateMock = () => {
   const dispatch = useDispatch();
   const batches = useSelector((state) => state.batch.batches);
   const subjects = useSelector((state) => state.subject.subjects);
+  const marksRef = useRef();
   let thunk;
   const required_path = location.pathname.split("/").at(-1);
+  const is_loading = useSelector((state) => state.mock.isLoading);
 
   if (required_path === "update") {
     thunk = updateMock;
@@ -34,19 +37,67 @@ const CreateMock = () => {
 
   const validate = (input_name, value, formData) => {
     let error = "";
-    // You can add validation rules here later
+    switch (input_name) {
+      case "name": {
+        if (!value.trim()) {
+          error = "Mock Name is required.";
+        } else if (value && value.length < 2) {
+          error = "Minimum 2 characters are required.";
+        }
+        break;
+      }
+
+      case "desc": {
+        if (!value.trim()) {
+          error = "Mock description is required.";
+        } else if (value && value.length < 10) {
+          error = "Minimum 10 characters are required.";
+        }
+        break;
+      }
+
+      case "total_marks": {
+        if (typeof value !== "number") {
+          error = "Valid Input is required.";
+        } else if (value && value < 10) {
+          error = "Minimum  Marks are 10.";
+        }
+        break;
+      }
+
+      case "course": {
+        if (!value.trim()) {
+          error = "Course is required.";
+        }
+        break;
+      }
+
+      case "subject": {
+        if (!value.trim()) {
+          error = "Course is required.";
+        }
+        break;
+      }
+
+      case "batch_id": {
+        if (!value.trim()) {
+          error = "Course is required.";
+        }
+        break;
+      }
+    }
     return error;
   };
 
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
-      name: data.name || "",
-      desc: data.desc || "",
-      total_marks: data.total_marks || "",
-      course: data.course || "",
-      subject: data.subject || "",
-      batch_id: data.batch_id || "",
-      mock_id: data._id || "",
+      name: data?.name || "",
+      desc: data?.desc || "",
+      total_marks: data?.total_marks || "",
+      course: data?.course || "",
+      subject: data?.subject || "",
+      batch_id: data?.batch_id || "",
+      mock_id: data?._id || "",
     },
     thunk,
     validate,
@@ -68,27 +119,40 @@ const CreateMock = () => {
   };
 
   useEffect(() => {
-    dispatch(getSubjects({ course_id: data.course }));
-    if (required_path === "update" && subjects.length > 0) {
-      setFormData((prevData) => {
-        return {
-          ...prevData,
-          subject: data.subject,
-        };
+    if (required_path === "update") {
+      marksRef.current.value = data.total_marks;
+    }
+    if (required_path === "add") {
+      marksRef.current.value = "";
+      setFormData({
+        name: "",
+        desc: "",
+        total_marks: "",
+        course: "",
+        subject: "",
+        batch_id: "",
+        mock_id: "",
       });
     }
-  }, []);
+  }, [required_path]);
+
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-3xl w-full">
         <form
-          onSubmit={submitHandler}
+          onSubmit={(event) => {
+            marksRef.current.value = "";
+            submitHandler(event);
+          }}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
         >
           <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-8">
             <ScrollText className="w-7 h-7 text-blue-600 mr-2" />
-            Create Mock Test
+            {required_path === "update" ? "Update Mock" : " Create Mock"}
           </h2>
 
           {/* Name */}
@@ -298,7 +362,7 @@ const CreateMock = () => {
               min="0"
               name="total_marks"
               id="total_marks"
-              value={formData.total_marks}
+              ref={marksRef}
               onChange={changeHandler}
               required
               placeholder="e.g., 100"
@@ -329,7 +393,10 @@ const CreateMock = () => {
                 hover:shadow-xl flex items-center justify-center gap-2"
             >
               <ScrollText className="w-5 h-5" />
-              <span>Create Mock</span>
+              <span>
+                {" "}
+                {required_path === "update" ? "Update Mock" : " Create Mock"}
+              </span>
             </button>
           </div>
         </form>

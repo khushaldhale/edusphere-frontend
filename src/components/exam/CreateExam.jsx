@@ -18,12 +18,14 @@ import {
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
+import Loading from "../Loading";
 
 const CreateExam = () => {
   const [courses, isLoading] = useFetchCourses();
   const dispatch = useDispatch();
   const location = useLocation();
   const data = location.state;
+  const is_loading = useSelector((state) => state.exam.isLoading);
   const required_path = location.pathname.split("/").at(-1);
   const batches = useSelector((state) => state.batch.batches);
   const subjects = useSelector((state) => state.subject.subjects);
@@ -145,6 +147,9 @@ const CreateExam = () => {
     });
   }, [subjects]);
 
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen py-8 px-4">
       <div className="max-w-3xl mx-auto">

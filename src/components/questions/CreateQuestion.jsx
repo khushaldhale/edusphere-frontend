@@ -6,13 +6,39 @@ import {
 } from "../../redux/slices/questionSlice";
 import { FileText, Hash, PlusCircle, CheckCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const CreateQuestion = ({ exam_id }) => {
   const location = useLocation();
   const data = location.state;
   const validate = (input_name, value, formData) => {
     let error = "";
-    // You may add validation logic here later if needed
+    switch (input_name) {
+      case "question": {
+        if (!value.trim()) {
+          error = "Question is required";
+        } else if (value && value.length < 10) {
+          error = "Minimum 10 characters are required.";
+        }
+        break;
+      }
+
+      case "marks": {
+        if (typeof value !== "number") {
+          error = "Valid Input is required";
+        } else if (typeof value === "number" && value < 1) {
+          error = "Zero and negative value is not allowed.";
+        }
+        break;
+      }
+
+      case "answer": {
+        if (!value.trim()) {
+          error = "Answer is required";
+        }
+        break;
+      }
+    }
     return error;
   };
   const required_path = location.pathname.split("/").at(-1);
@@ -31,16 +57,20 @@ const CreateQuestion = ({ exam_id }) => {
       options: data?.options || [],
       answer: data?.answer || "",
       question_id: data?._id || "",
+      exam_id: data?.exam_id || "",
     },
     thunk,
     validate,
-    location.pathname,
-    "exam"
+    //dont go anywhere so that we do have an exam id anytime.
+    "",
+    "question"
   );
 
   const addOption = () => {
     const option = optionRef.current.value.trim();
-    if (!option) return;
+    if (!option) {
+      toast.error("Option  should be provided.");
+    }
     setFormData((prevData) => ({
       ...prevData,
       options: [...prevData.options, option],
@@ -55,10 +85,14 @@ const CreateQuestion = ({ exam_id }) => {
   }, [required_path]);
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen py-8 px-4">
+    <div className="bg-gradient-to-br min-h-screen py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <form
-          onSubmit={submitHandler}
+          onSubmit={(event) => {
+            marksRef.current.value = "";
+            optionRef.current.value = "";
+            submitHandler(event);
+          }}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
         >
           <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-8">

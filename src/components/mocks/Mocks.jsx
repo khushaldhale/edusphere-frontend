@@ -1,17 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import ExamFilter from "../exam/ExamFilter";
-import { useState } from "react";
-import {
-  FileText,
-  Hash,
-  BookOpen,
-  ListChecks,
-  Trash2,
-  Pencil,
-} from "lucide-react";
-import { deleteMock } from "../../redux/slices/mockSlice";
+import { useEffect, useState } from "react";
+import { FileText, Hash, ListChecks, Edit3, Trash2, Eye } from "lucide-react";
+import { clear_mock, deleteMock } from "../../redux/slices/mockSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import Loading from "../Loading";
 
 const Mocks = () => {
   const mocks = useSelector((state) => state?.mock?.mocks || []);
@@ -19,99 +14,114 @@ const Mocks = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const subjects = useSelector((state) => state.subject.subjects);
+  const isLoading = useSelector((state) => state.mock.isLoading);
+
+  useEffect(() => {
+    dispatch(clear_mock());
+  }, []);
+
+  if (isLoading) return <Loading />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center px-4 py-12">
-      {/* Filter */}
-      <div className="w-full max-w-3xl mb-10">
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-10 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+          Mocks
+        </h1>
+
+        {/* Filter */}
         <ExamFilter
           selectedBatch={selectedBatch}
-          selectedCourse={selectedCourse}
           setSelectedBatch={setSelectedBatch}
+          selectedCourse={selectedCourse}
           setSelectedCourse={setSelectedCourse}
+          mocks={mocks}
         />
+
+        {/* Mocks List */}
+        {mocks.length > 0 ? (
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            {mocks.map((mock) => (
+              <div
+                key={mock._id}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 flex flex-col"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  <h2 className="text-xl font-bold text-gray-900">
+                    {mock.name}
+                  </h2>
+                </div>
+                <p className="text-gray-700 mb-3">{mock.desc}</p>
+                <div className="flex flex-col gap-2 text-gray-700 text-sm mb-1">
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-4 h-4 text-orange-500" />
+                    <span className="font-semibold">Total Marks:</span>{" "}
+                    {mock.total_marks}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ListChecks className="w-4 h-4 text-purple-500" />
+                    <span className="font-semibold">Subject:</span>{" "}
+                    {subjects.find((subject) => subject._id === mock.subject)
+                      ?.name || "Unknown"}
+                  </div>
+                  {/* Add more mock details here if needed */}
+                </div>
+                {/* action buttons */}
+                <div className="px-4 pt-4 mt-auto">
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
+                        navigate(`/dashboard/mocks/${mock._id}/update`, {
+                          state: mock,
+                        });
+                      }}
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Update Mock"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Update</span>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
+                        dispatch(deleteMock({ mock_id: mock._id })).then(
+                          (action) => {
+                            if (action.payload?.success) {
+                              toast.success(action.payload.message);
+                            } else {
+                              toast.error(
+                                action.payload?.message || "Error deleting"
+                              );
+                            }
+                          }
+                        );
+                      }}
+                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Delete Mock"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete</span>
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-32 text-gray-600 italic text-lg">
+            {selectedBatch
+              ? "No mocks found for this batch."
+              : "First select a course and batch to view mocks."}
+          </div>
+        )}
       </div>
-
-      {/* Mocks Grid */}
-      {selectedBatch && selectedCourse && mocks.length > 0 && (
-        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
-          {mocks.map((mock, index) => (
-            <div
-              key={index}
-              className="bg-white/80 rounded-2xl border border-gray-100 shadow-lg p-8 flex flex-col gap-4 transition-transform duration-150 hover:scale-[1.025]"
-            >
-              <h3 className="flex items-center text-xl font-bold text-gray-900 mb-2">
-                <FileText className="w-6 h-6 text-blue-600 mr-2" />
-                {mock.name}
-              </h3>
-              <p className="text-gray-700 mb-1">{mock.desc}</p>
-              <div className="flex flex-wrap gap-4 mt-3 text-sm font-semibold">
-                <div className="flex items-center gap-1 text-violet-600">
-                  <Hash className="w-4 h-4" />
-                  {mock.total_marks} Marks
-                </div>
-                <div className="flex items-center gap-1 text-blue-600">
-                  <BookOpen className="w-4 h-4" />
-                  {mock.course}
-                </div>
-                <div className="flex items-center gap-1 text-purple-600">
-                  <ListChecks className="w-4 h-4" />
-                  {mock.subject}
-                </div>
-              </div>
-              <div className="flex gap-3 mt-4 pt-3 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    dispatch(deleteMock({ mock_id: mock._id })).then(
-                      (action) => {
-                        if (action.payload.success) {
-                          toast.success(action.payload.message);
-                        }
-                      }
-                    );
-                  }}
-                  className="flex items-center gap-1 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold px-4 py-2 rounded-xl shadow transition-all duration-150 hover:shadow-xl focus:ring-2 focus:ring-red-200 focus:outline-none"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Delete
-                </button>
-                <button
-                  onClick={() => {
-                    navigate(`/dashboard/mocks/${mock._id}/update`, {
-                      state: mock,
-                    });
-                  }}
-                  className="flex items-center gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold px-4 py-2 rounded-xl shadow transition-all duration-150 hover:shadow-xl focus:ring-2 focus:ring-purple-200 focus:outline-none"
-                >
-                  <Pencil className="w-4 h-4" />
-                  Update
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* No mocks found */}
-      {selectedCourse && selectedBatch && mocks.length === 0 && (
-        <div className="flex flex-col items-center mt-24">
-          <span className="text-2xl font-semibold text-gray-600 mb-2">
-            No Mock Exists
-          </span>
-          <span className="text-sm text-gray-400">
-            Looks like there are no mocks for this batch/course yet.
-          </span>
-        </div>
-      )}
-
-      {/* Select prompt */}
-      {!(selectedBatch && selectedCourse) && (
-        <div className="flex flex-col items-center mt-24">
-          <span className="text-2xl font-semibold text-gray-600 mb-2">
-            Select course and batch to view mocks
-          </span>
-        </div>
-      )}
     </div>
   );
 };

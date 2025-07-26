@@ -83,6 +83,11 @@ export const mockSlice = createSlice(
 	{
 		name: "mock",
 		initialState,
+		reducers: {
+			clear_mock: (state) => {
+				state.mocks = []
+			}
+		},
 		extraReducers: (builder) => {
 
 			builder.addCase(createMock.pending, (state) => {
@@ -159,4 +164,5 @@ export const mockSlice = createSlice(
 	}
 )
 
-export default mockSlice.reducer; 
+export const { clear_mock } = mockSlice.actions
+export default mockSlice.reducer; 	

@@ -13,7 +13,7 @@ import Index from "./components/home/Index";
 import CreateEnquiry from "./components/enquiry/CreateEnquiry";
 import Enquiries from "./components/enquiry/Enquiries";
 import Enquiry from "./components/enquiry/Enquiry";
-import CreateTopic from "./components/topic/createTopic";
+import CreateTopic from "./components/topic/CreateTopic";
 import Batches from "./components/batch/Batches";
 import CreateBatch from "./components/batch/CreateBatch";
 import CreateEmployee from "./components/employees/CreateEmployee";
