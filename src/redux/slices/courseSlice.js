@@ -59,6 +59,26 @@ export const deleteCourse = createAsyncThunk("deleteCourse", async (data, { reje
 	}
 })
 
+export const updateCourse = createAsyncThunk("updateCourse", async (data, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/courses/${data.course_id}`, {
+			method: "PUT",
+			credentials: "include",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify(data)
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			return rejectWithValue(errorData)
+		}
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error);
+	}
+})
 
 const initialState = {
 	isLoading: null,
@@ -114,6 +134,27 @@ export const courseSlice = createSlice(
 					})
 				})
 				.addCase(deleteCourse.rejected, (state, action) => {
+					state.isError = true;
+					state.isLoading = false;
+				})
+
+
+			builder.addCase(updateCourse.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(updateCourse.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.courses = state.courses.map((course) => {
+						if (course._id === action.payload.data._id) {
+							return action.payload.data
+						} else {
+							return course;
+						}
+					})
+				})
+				.addCase(updateCourse.rejected, (state, action) => {
 					state.isError = true;
 					state.isLoading = false;
 				})

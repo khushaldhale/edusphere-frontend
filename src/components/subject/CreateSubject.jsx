@@ -1,7 +1,10 @@
+import { useParams } from "react-router-dom";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createSubject } from "../../redux/slices/subjectSlice";
 import SubjectForm from "./SubjectForm";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const CreateSubject = () => {
   const validate = (input_name, value, formData) => {
@@ -36,27 +39,33 @@ const CreateSubject = () => {
     }
     return error || "";
   };
-
-  const [courses, isLoading] = useFetchCourses();
+  const course_id = useParams().id;
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
       name: "",
       desc: "",
-      course: "",
+      course: course_id,
     },
     createSubject,
     validate,
     "/dashboard/courses"
   );
 
+  const isLoading = useSelector((state) => {
+    return state.subject.isLoading;
+  });
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
+
   return (
     <SubjectForm
-      courses={courses}
       submitHandler={submitHandler}
       changeHandler={changeHandler}
       formData={formData}
       errors={errors}
-      isLoading={isLoading}
+      url="create"
     ></SubjectForm>
   );
 };

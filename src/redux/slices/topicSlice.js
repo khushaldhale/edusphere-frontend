@@ -3,18 +3,21 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const createTopic = createAsyncThunk("createTopic", async (data, { rejectWithValue }) => {
 	try {
+		//  convert the data into  new  FormData object as file is getting handled here.
+		const required_data = new FormData();
+		Object.entries(data).forEach(([key, value]) => {
+			required_data.append(key, value);
+		});
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/topics`, {
 			method: "POST",
 			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(data)
-		})
+			body: required_data,
+		});
 		if (!response.ok) {
-			return rejectWithValue(await response.json())
+			return rejectWithValue(await response.json());
 		}
-		return await response.json()
+		return await response.json();
+
 	} catch (error) {
 		return rejectWithValue(error)
 	}
@@ -37,13 +40,20 @@ export const deleteTopic = createAsyncThunk("deleteTopic", async (data, { reject
 
 export const updateTopic = createAsyncThunk("updateTopic", async (data, { rejectWithValue }) => {
 	try {
+		//  convert the data into  new  FormData object as file is getting handled here.
+		const required_data = new FormData();
+		Object.entries(data).forEach(([key, value]) => {
+			required_data.append(key, value);
+		});
+
+		for (let [key, value] of required_data.entries()) {
+			console.log(key, value);
+		}
+
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/topics/${data.topic_id}`, {
 			method: "PUT",
 			credentials: "include",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(data)
+			body: required_data
 		})
 		if (!response.ok) {
 			return rejectWithValue(await response.json())

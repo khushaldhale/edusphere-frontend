@@ -22,7 +22,7 @@ import {
   Target,
   Rocket,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Mock data - replace with your actual data
 const coursesData = [
@@ -205,10 +205,18 @@ const Index = () => {
                 {item}
               </motion.a>
             ))}
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Link
+                to={"/login"}
+                className="text-foreground hover:text-primary transition-colors"
+              >
+                Login
+              </Link>
+            </motion.div>
           </div>
           <div
             onClick={() => {
-              navigate("/dashboard/create-enquiry");
+              navigate("/dashboard/enquiries/add  ");
             }}
           >
             <Button className="gradient-primary text-white hover:opacity-90">
@@ -414,7 +422,7 @@ const Index = () => {
       >
         <div className="container mx-auto md:px-3">
           <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4">
               Popular Courses
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -500,10 +508,10 @@ const Index = () => {
       >
         <div className="container mx-auto md:px-3">
           <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">
               Recent Placements
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-black/70 max-w-2xl mx-auto">
               Our students are getting placed in top companies with amazing
               packages
             </p>
@@ -522,7 +530,7 @@ const Index = () => {
                 variants={fadeInUp}
                 whileHover={{
                   scale: 1.03,
-                  boxShadow: "0 10px 30px rgba(0, 172, 240, 0.2)",
+                  boxShadow: "0 10px 30px rgba(0, 112, 244, 0.25)", // subtle blue shadow
                   transition: {
                     type: "spring",
                     stiffness: 300,
@@ -531,28 +539,48 @@ const Index = () => {
                 }}
                 className="w-[400px]"
               >
-                <Card className="text-center overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm">
-                  <CardContent className="pt-6">
+                <Card className="relative overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm border border-black bg-white">
+                  {/* Company name top-right label */}
+                  <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md select-none z-10">
+                    {placement.company}
+                  </div>
+                  <CardContent className="pt-10 px-6 pb-8 flex flex-col items-center text-center">
                     <img
                       src={placement.image}
                       alt={placement.name}
-                      className="w-20 h-20 rounded-full mx-auto mb-4 object-cover"
+                      className="w-20 h-20 rounded-full mb-4 object-cover shadow-sm border border-black"
                     />
-                    <h3 className="font-bold text-lg mb-1">{placement.name}</h3>
-                    <p className="text-muted-foreground text-sm mb-3">
+                    <h3 className="font-semibold text-lg text-black mb-1">
+                      {placement.name}
+                    </h3>
+                    <p className="text-black/70 text-sm mb-4 italic max-w-[320px]">
+                      {/* Using description-like placeholder for feedback */}"
+                      {placement.feedback ||
+                        "This course helped me achieve my dream job with excellent placement support!"}
+                      "
+                    </p>
+                    <p className="text-black/60 text-xs mb-6">
                       {placement.course}
                     </p>
-                    <div className="bg-primary/10 rounded-lg p-3 mb-3">
-                      <div className="font-bold text-primary text-base">
-                        {placement.company}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {placement.position}
-                      </div>
-                    </div>
-                    <Badge className="gradient-secondary text-white text-sm px-4 py-2">
-                      {placement.package}
-                    </Badge>
+
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      }}
+                      className="w-full max-w-[320px]"
+                    >
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="text-black  border-2 border-gray-900 hover:border-blue-600 hover:text-blue-600 w-full font-semibold"
+                      >
+                        <Calendar className="mr-2 h-5 w-5" />
+                        {placement.package}
+                      </Button>
+                    </motion.div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -571,7 +599,7 @@ const Index = () => {
       >
         <div className="container mx-auto md:px-3">
           <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4">
               Student Feedback
             </h2>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -635,21 +663,22 @@ const Index = () => {
         </div>
       </motion.section>
 
-      {/* Trainers Section */}
+      {/* Trainers Section  */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
+        id="placements"
         className="py-20 bg-muted/30"
       >
         <div className="container mx-auto md:px-3">
           <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Expert Trainers
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-black">
+              Our Trainers
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Learn from industry experts with years of real-world experience
+            <p className="text-lg md:text-xl text-black/70 max-w-2xl mx-auto">
+              We do have top trainers with industry exeperince
             </p>
           </motion.div>
 
@@ -666,7 +695,7 @@ const Index = () => {
                 variants={fadeInUp}
                 whileHover={{
                   scale: 1.03,
-                  boxShadow: "0 10px 30px rgba(0, 172, 240, 0.2)",
+                  boxShadow: "0 10px 30px rgba(0, 112, 244, 0.25)", // subtle blue shadow
                   transition: {
                     type: "spring",
                     stiffness: 300,
@@ -675,27 +704,48 @@ const Index = () => {
                 }}
                 className="w-[400px]"
               >
-                <Card className="text-center overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm">
-                  <CardContent className="pt-6">
-                    <motion.img
-                      whileHover={{ scale: 1.1 }}
+                <Card className="relative overflow-hidden shadow-elegant hover:shadow-glow transition-all duration-300 group text-sm border border-black bg-white">
+                  {/* Company name top-right label */}
+                  <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md select-none z-10">
+                    {trainer.expertise}
+                  </div>
+                  <CardContent className="pt-10 px-6 pb-8 flex flex-col items-center text-center">
+                    <img
                       src={trainer.image}
                       alt={trainer.name}
-                      className="w-32 h-32 rounded-full mx-auto mb-6 object-cover transition-transform duration-300 group-hover:shadow-glow"
+                      className="w-20 h-20 rounded-full mb-4 object-cover shadow-sm border border-black"
                     />
-                    <h3 className="font-bold text-lg mb-1">{trainer.name}</h3>
-                    <p className="text-primary font-semibold text-sm mb-1">
-                      {trainer.expertise}
+                    <h3 className="font-semibold text-lg text-black mb-1">
+                      {trainer.name}
+                    </h3>
+                    <p className="text-black/70 text-sm mb-4 italic max-w-[320px]">
+                      {/* Using description-like placeholder for feedback */}"
+                      {trainer.desc ||
+                        "This course helped me achieve my dream job with excellent placement support!"}
+                      "
                     </p>
-                    <p className="text-muted-foreground text-sm mb-3">
-                      {trainer.experience}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="text-accent border-accent text-xs"
-                    >
+                    <p className="text-black/60 text-xs mb-6">
                       {trainer.company}
-                    </Badge>
+                    </p>
+
+                    <motion.div
+                      whileHover={{ scale: 1.05 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20,
+                      }}
+                      className="w-full max-w-[320px]"
+                    >
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="text-black  border-2 border-gray-900 hover:border-blue-600 hover:text-blue-600 w-full font-semibold"
+                      >
+                        <Calendar className="mr-2 h-5 w-5" />
+                        {trainer.experience}
+                      </Button>
+                    </motion.div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -715,7 +765,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.h2
             {...fadeInUp}
-            className="text-4xl md:text-5xl font-bold text-white mb-6"
+            className="text-3xl md:text-4xl font-semibold text-white mb-6"
           >
             Ready to Start Your Journey?
           </motion.h2>
@@ -775,7 +825,7 @@ const Index = () => {
       >
         <div className="container mx-auto px-4">
           <motion.div {...fadeInUp} className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-6">
               Get In Touch
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">

@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
 import { createEnquiry } from "../../redux/slices/enquirySlice";
@@ -15,6 +16,7 @@ import {
   Send,
   Package,
 } from "lucide-react";
+import Loading from "../Loading";
 
 const CreateEnquiry = () => {
   const [courses, isLoading] = useFetchCourses();
@@ -66,10 +68,10 @@ const CreateEnquiry = () => {
           error = "Passing Year is required.";
         } else if (!/^\d{4}$/.test(value)) {
           error = "Passing Year must be a 4-digit number.";
-        } else if (value < currentYear - 10 || value > currentYear) {
-          error = `Passing Year should be between ${
-            currentYear - 10
-          } and ${currentYear}.`;
+        } else if (value < currentYear - 10 || value > currentYear + 4) {
+          error = `Passing Year should be between ${currentYear - 10} and ${
+            currentYear + 4
+          }.`;
         }
         break;
       }
@@ -163,8 +165,17 @@ const CreateEnquiry = () => {
     },
     createEnquiry,
     validate,
-    "/"
+    "/dashboard/enquiries",
+    "enquiry"
   );
+
+  const is_loading = useSelector((state) => {
+    return state.enquiry.isLoading;
+  });
+
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -178,6 +189,7 @@ const CreateEnquiry = () => {
         </div>
 
         <form
+          autoComplete="off"
           onSubmit={submitHandler}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
         >
@@ -530,7 +542,7 @@ const CreateEnquiry = () => {
                   focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
                 >
                   <option value="">Select current status</option>
-                  {["Studying", "Passed", "Dropout"].map((element, index) => (
+                  {["Studying", "Passed"].map((element, index) => (
                     <option value={element} key={index}>
                       {element.charAt(0).toUpperCase() + element.slice(1)}
                     </option>

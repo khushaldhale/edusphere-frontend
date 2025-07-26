@@ -1,0 +1,2 @@
+1. loading remained in  exams.
+2. qustion, mocks remained to test.

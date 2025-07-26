@@ -17,7 +17,7 @@ const useFetchCourses = () => {
 				toast.error(action.payload.message);
 			}
 		});
-	}, [dispatch]);
+	}, []);
 
 	return [courses, isLoading]
 }

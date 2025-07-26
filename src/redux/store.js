@@ -5,6 +5,12 @@ import subjectSlice from "./slices/subjectSlice";
 import topicSlice from "./slices/topicSlice";
 import enquirySlice from "./slices/enquirySlice";
 import enrollmentSlice from "./slices/enrollmentSlice";
+import batchSlice from "./slices/batchSlice";
+import employeeSlice from "./slices/employeeSlice";
+import studentSlice from "./slices/studentsSlice";
+import examSlice from "./slices/examSlice";
+import questionSlice from "./slices/questionSlice";
+import mockSlice  from "./slices/mockSlice";
 
 
 const store = configureStore(
@@ -15,7 +21,13 @@ const store = configureStore(
 			subject: subjectSlice,
 			topic: topicSlice,
 			enquiry: enquirySlice,
-			enrollment: enrollmentSlice
+			enrollment: enrollmentSlice,
+			batch: batchSlice,
+			employee: employeeSlice,
+			student: studentSlice,
+			exam: examSlice,
+			question: questionSlice,
+			mock: mockSlice
 		}
 	}
 )

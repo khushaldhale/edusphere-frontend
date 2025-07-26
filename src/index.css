@@ -1,5 +1,7 @@
 @import "tailwindcss";
-
+html{
+  font-size: 15.2px;
+}
 :root {
   --background: 210 40% 98%;
   --foreground: 222 84% 4.9%;

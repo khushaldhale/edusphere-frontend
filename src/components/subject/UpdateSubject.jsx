@@ -3,6 +3,8 @@ import { updateSubject } from "../../redux/slices/subjectSlice";
 import SubjectForm from "./SubjectForm";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import useForm from "../../hooks/useForm";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const UpdateSubject = () => {
   const location = useLocation();
@@ -54,15 +56,31 @@ const UpdateSubject = () => {
     "/dashboard/courses"
   );
 
+  const is_loading = useSelector((state) => {
+    return state.subject.isLoading;
+  });
+
+  if (is_loading) {
+    return <Loading></Loading>;
+  }
+
   return (
-    <SubjectForm
-      courses={courses}
-      submitHandler={submitHandler}
-      changeHandler={changeHandler}
-      formData={formData}
-      errors={errors}
-      isLoading={isLoading}
-    ></SubjectForm>
+    <div>
+      <div className="text-center my-10">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          Update Subject
+        </h1>
+      </div>
+      <SubjectForm
+        courses={courses}
+        submitHandler={submitHandler}
+        changeHandler={changeHandler}
+        formData={formData}
+        errors={errors}
+        isLoading={isLoading}
+        url="update"
+      ></SubjectForm>
+    </div>
   );
 };
 
