@@ -68,6 +68,11 @@ const Enquiries = () => {
     dispatch(markAsProcessed({ enquiry_id: enquiry._id }));
   };
 
+  const processing_enquiry = (data) => {
+    //   remove the data from  the list if  status  is new
+    dispatch(remove_enquiry(data));
+  };
+
   const is_loading = useSelector((state) => {
     return state.enquiry.isLoading;
   });
@@ -82,14 +87,12 @@ const Enquiries = () => {
     if (socket) {
       if (userInfo.accountType === "counsellor") {
         socket?.on("new_enquiry", add_enquiry);
-        socket?.on("processing_enquiry", (data) => {
-          //   remove the data from  the list if  status  is new
-          dispatch(remove_enquiry(data));
-        });
+        socket?.on("processing_enquiry", processing_enquiry);
       }
     }
     return () => {
       socket?.off("new_enquiry", add_enquiry);
+      socket?.off("processing_enquiry", processing_enquiry);
     };
   }, [socket]);
 

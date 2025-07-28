@@ -7,6 +7,8 @@ import {
 import { FileText, Hash, PlusCircle, CheckCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useSelector } from "react-redux";
+import Loading from "../Loading";
 
 const CreateQuestion = ({ exam_id }) => {
   const location = useLocation();
@@ -65,6 +67,9 @@ const CreateQuestion = ({ exam_id }) => {
     "",
     "question"
   );
+  const isLoading = useSelector((state) => {
+    return state.question.isLoading;
+  });
 
   const addOption = () => {
     const option = optionRef.current.value.trim();
@@ -83,6 +88,10 @@ const CreateQuestion = ({ exam_id }) => {
       marksRef.current.value = data.marks;
     }
   }, [required_path]);
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div className="bg-gradient-to-br min-h-screen py-8 px-4">

@@ -7,6 +7,7 @@ import { clear_exams, getExams } from "../../redux/slices/examSlice";
 import { clear_mock, getMocks } from "../../redux/slices/mockSlice";
 import { useLocation } from "react-router-dom";
 import { getSubjects } from "../../redux/slices/subjectSlice";
+import Loading from "../Loading";
 
 const ExamFilter = ({
   selectedBatch,
@@ -20,6 +21,7 @@ const ExamFilter = ({
   const dispatch = useDispatch();
   const batches = useSelector((state) => state.batch.batches || []);
   const required_path = useLocation().pathname.split("/").at(-1);
+  const is_loading = useSelector((state) => state.batch.isLoading);
 
   const get_batches = (event) => {
     const courseId = event?.target?.value;
@@ -50,6 +52,10 @@ const ExamFilter = ({
     setSelectedBatch(batchId);
     dispatch(getMocks({ batch_id: batchId }));
   };
+
+  if (isLoading || is_loading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <form className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border border-gray-100 p-6 mb-8 flex flex-col md:flex-row gap-6 md:items-center">

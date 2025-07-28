@@ -1,26 +1,25 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { notBatchStudents } from "../../redux/slices/studentsSlice";
+import { studentsViaBatch } from "../../redux/slices/studentsSlice";
+import { useParams } from "react-router-dom";
+import StudentsCard from "../students/StudentsCard";
 import useFetchCourses from "../../hooks/useFetchCourses";
-import { useNavigate } from "react-router-dom";
-import StudentsCard from "./StudentsCard";
 import Loading from "../Loading";
 
-const Students = () => {
-  const students = useSelector(
-    (state) => state.student.students_no_batch || []
-  );
+const BatchStudents = () => {
+  const students = useSelector((state) => {
+    return state.student.students;
+  });
   const dispatch = useDispatch();
+  const batch_id = useParams().id;
   const [courses, isLoading] = useFetchCourses();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    dispatch(notBatchStudents());
-  }, [dispatch]);
-
   const is_loading = useSelector((state) => {
     return state.student.isLoading;
   });
+
+  useEffect(() => {
+    dispatch(studentsViaBatch({ batch_id }));
+  }, []);
 
   if (isLoading || is_loading) {
     return <Loading></Loading>;
@@ -51,7 +50,7 @@ const Students = () => {
           </div>
         ) : (
           <div className="text-center py-32 text-gray-600 italic text-lg">
-            All students are already enrolled in batches!
+            No student is enrolled yet.
           </div>
         )}
       </div>
@@ -59,4 +58,4 @@ const Students = () => {
   );
 };
 
-export default Students;
+export default BatchStudents;

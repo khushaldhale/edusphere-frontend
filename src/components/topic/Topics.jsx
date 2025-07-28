@@ -27,6 +27,9 @@ const Topics = () => {
   const [addTopic, setAddTopic] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { accountType } = useSelector((state) => {
+    return state.auth.userInfo;
+  });
 
   const isLoading = useSelector((state) => {
     return state.topic.isLoading;
@@ -117,30 +120,37 @@ const Topics = () => {
                       <span>Download Notes</span>
                     </motion.a>
 
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
-                      onClick={() => {
-                        navigate(`${location.pathname}/${topic._id}/update`, {
-                          state: topic,
-                        });
-                      }}
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </motion.button>
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
-                      onClick={() => {
-                        dispatch(deleteTopic({ topic_id: topic._id }));
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </motion.button>
+                    {accountType === "admin" && (
+                      <>
+                        <motion.button
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
+                          onClick={() => {
+                            navigate(
+                              `${location.pathname}/${topic._id}/update`,
+                              {
+                                state: topic,
+                              }
+                            );
+                          }}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </motion.button>
+                        <motion.button
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
+                          onClick={() => {
+                            dispatch(deleteTopic({ topic_id: topic._id }));
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               ))

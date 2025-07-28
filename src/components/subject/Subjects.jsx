@@ -17,6 +17,9 @@ const Subjects = () => {
   const isLoading = useSelector((state) => {
     return state.subject.isLoading;
   });
+  const { accountType } = useSelector((state) => {
+    return state.auth.userInfo;
+  });
 
   const buttonVariants = {
     hover: {
@@ -47,7 +50,7 @@ const Subjects = () => {
   };
 
   const update_subject = (subject) => {
-    navigate("/dashboard/subject/edit", {
+    navigate("/dashboard/subjects/update", {
       state: subject,
     });
   };
@@ -147,28 +150,32 @@ const Subjects = () => {
                       <Eye className="w-4 h-4" />
                       <span>View Topics</span>
                     </motion.button>
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
-                      onClick={() => {
-                        update_subject(sub);
-                      }}
-                    >
-                      <Edit3 className="w-4 h-4" />
-                    </motion.button>
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
-                      onClick={() => {
-                        delete_subject(sub._id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </motion.button>
+                    {accountType === "admin" && (
+                      <>
+                        <motion.button
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
+                          onClick={() => {
+                            update_subject(sub);
+                          }}
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </motion.button>
+                        <motion.button
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                          className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg text-sm" // Added text-sm
+                          onClick={() => {
+                            delete_subject(sub._id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               ))

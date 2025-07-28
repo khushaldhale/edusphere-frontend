@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -11,75 +11,169 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/slices/authSlice";
+import { toast } from "react-toastify";
+import { SocketContext } from "../SocketProvider";
+import useSocket from "../hooks/useSocket";
 
+// ----- MENUS -----
 const menus = [
   {
     name: "Courses",
     icon: <BookOpen className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Courses", to: "/dashboard/courses" },
-      { label: "Add Course", to: "/dashboard/courses/add" },
+      {
+        label: "All Courses",
+        to: "/dashboard/courses",
+        roles: ["admin", "counsellor", "operations_executive"],
+      },
+      { label: "Add Course", to: "/dashboard/courses/add", roles: ["admin"] },
     ],
   },
   {
     name: "Batches",
     icon: <Layers className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Batches", to: "/dashboard/batches" },
-      { label: "Add Batch", to: "/dashboard/batches/add" },
+      {
+        label: "All Batches",
+        to: "/dashboard/batches",
+        roles: ["admin", "operations_executive", "counsellor"],
+      },
+      {
+        label: "Add Batch",
+        to: "/dashboard/batches/add",
+        roles: ["admin", "operations_executive"],
+      },
     ],
   },
   {
     name: "Staff",
     icon: <Users className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Staff", to: "/dashboard/employees" },
-      { label: "Add Staff", to: "/dashboard/employees/add" },
+      {
+        label: "All Staff",
+        to: "/dashboard/employees",
+        roles: ["admin", "operations_executive"],
+      },
+      { label: "Add Staff", to: "/dashboard/employees/add", roles: ["admin"] },
     ],
   },
   {
     name: "Enquiries",
     icon: <Users className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Enquiries", to: "/dashboard/enquiries" },
-      { label: "Add Enquiry", to: "/dashboard/enquiries/add" },
+      {
+        label: "All Enquiries",
+        to: "/dashboard/enquiries",
+        roles: ["admin", "counsellor", "operations_executive"],
+      },
+      {
+        label: "Add Enquiry",
+        to: "/dashboard/enquiries/add",
+        roles: ["counsellor", "receptionist"],
+      },
     ],
   },
   {
     name: "Batch Allocation",
     icon: <Users className="w-5 h-5 mr-2" />,
-    subMenus: [{ label: "Students", to: "/dashboard/students" }],
+    subMenus: [
+      {
+        label: "Students",
+        to: "/dashboard/students/no-batch",
+        roles: ["admin", "counsellor", "operations_executive"],
+      },
+    ],
   },
   {
     name: "Exams",
     icon: <Users className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Exams", to: "/dashboard/exams" },
-      { label: "Add Exam", to: "/dashboard/exams/add" },
+      {
+        label: "All Exams",
+        to: "/dashboard/exams",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "Add Exam",
+        to: "/dashboard/exams/add",
+        roles: ["admin", "operations_executive"],
+      },
+      {
+        label: "Appear for Exam",
+        to: "/dashboard/exams/students",
+        roles: ["student"],
+      },
     ],
   },
   {
     name: "Mocks",
     icon: <Users className="w-5 h-5 mr-2" />,
     subMenus: [
-      { label: "All Mocks", to: "/dashboard/mocks" },
-      { label: "Add Mock", to: "/dashboard/mocks/add" },
+      {
+        label: "All Mocks",
+        to: "/dashboard/mocks",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "Add Mock",
+        to: "/dashboard/mocks/add",
+        roles: ["admin", "operations_executive"],
+      },
     ],
   },
   {
     name: "Settings",
     icon: <Settings className="w-5 h-5 mr-2" />,
     to: "/dashboard/settings",
+    // shown if menu name is whitelisted in roleMenus
   },
 ];
 
-function Sidebar({ open, closeSidebar }) {
+// Role to allowed menu names mapping
+const roleMenus = {
+  admin: [
+    "Courses",
+    "Batches",
+    "Staff",
+    "Enquiries",
+    "Batch Allocation",
+    "Exams",
+    "Mocks",
+    "Settings",
+  ],
+  counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
+  instructor: ["Settings"],
+  student: ["Exams", "Settings"],
+  receptionist: ["Enquiries", "Settings"],
+  operations_executive: [
+    "Courses",
+    "Batches",
+    "Staff",
+    "Batch Allocation",
+    "Exams",
+    "Mocks",
+    "Settings",
+  ],
+};
+
+function Sidebar({ open, closeSidebar, accountType }) {
   const [openMenuIdx, setOpenMenuIdx] = useState(null);
   const location = useLocation();
 
-  const toggleMenu = (idx) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // Filter menus based on allowed top-level menu names
+  const allowedMenuNames = roleMenus[accountType] || [];
+  const filteredMenus = menus.filter((menu) =>
+    allowedMenuNames.includes(menu.name)
+  );
+
+  const { socket } = useContext(SocketContext);
+  const toggleMenu = (idx) =>
     setOpenMenuIdx((prev) => (prev === idx ? null : idx));
-  };
 
   return (
     <AnimatePresence>
@@ -94,6 +188,7 @@ function Sidebar({ open, closeSidebar }) {
             exit={{ opacity: 0 }}
             onClick={closeSidebar}
           />
+
           {/* Sidebar */}
           <motion.aside
             key="sidebar"
@@ -123,13 +218,24 @@ function Sidebar({ open, closeSidebar }) {
             {/* Navigation */}
             <nav className="flex-1 overflow-y-auto py-6">
               <ul className="space-y-2">
-                {menus.map((menu, idx) => {
+                {filteredMenus.map((menu, idx) => {
                   const isActive =
                     menu.to &&
                     location.pathname.startsWith(menu.to.replace(/\/$/, ""));
+
+                  let filteredSubMenus = null;
+                  if (menu.subMenus) {
+                    filteredSubMenus = menu.subMenus.filter(
+                      (submenu) =>
+                        Array.isArray(submenu.roles) &&
+                        submenu.roles.includes(accountType)
+                    );
+                    // If no submenus remain, skip rendering this menu group
+                    if (filteredSubMenus.length === 0) return null;
+                  }
+
                   return (
                     <li key={menu.name} className="relative">
-                      {/* Menu with submenu */}
                       {menu.subMenus ? (
                         <>
                           <button
@@ -163,7 +269,7 @@ function Sidebar({ open, closeSidebar }) {
                                 exit={{ height: 0, opacity: 0 }}
                                 transition={{ type: "tween", duration: 0.18 }}
                               >
-                                {menu.subMenus.map((s) => (
+                                {filteredSubMenus.map((s) => (
                                   <li key={s.label}>
                                     <Link
                                       to={s.to}
@@ -185,7 +291,7 @@ function Sidebar({ open, closeSidebar }) {
                           </AnimatePresence>
                         </>
                       ) : (
-                        /* Menu without submenu */
+                        // No submenu
                         <Link
                           to={menu.to}
                           onClick={closeSidebar}
@@ -204,6 +310,40 @@ function Sidebar({ open, closeSidebar }) {
                 })}
               </ul>
             </nav>
+
+            {/* Logout button at the bottom */}
+            <div className="px-6 py-5 border-t border-gray-100 mt-auto">
+              <button
+                onClick={() => {
+                  dispatch(logout()).then((action) => {
+                    if (action.payload.success) {
+                      toast.success(action.payload.message);
+                      if (socket) {
+                        socket?.disconnect();
+                      }
+                      navigate("/login", { replace: true });
+                    }
+                  });
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 font-medium hover:bg-red-100 active:bg-red-200 transition shadow"
+              >
+                {/* Logout icon */}
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  className="mr-2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                </svg>
+                Logout
+              </button>
+            </div>
           </motion.aside>
         </>
       )}
@@ -211,8 +351,25 @@ function Sidebar({ open, closeSidebar }) {
   );
 }
 
+// Main Dashboard component
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Get accountType from Redux
+  const { accountType } = useSelector((state) => state.auth.userInfo);
+  const isLoggedIn = useSelector((state) => {
+    return state.auth.isLoggedIn;
+  });
+  const socketConection = useSocket();
+  const { socket } = useContext(SocketContext);
+
+  //   we are doing socket connection here  just because login component doesnt fall under the tree.
+  useEffect(() => {
+    //  establish sicket connection  when person is logged in
+    if (isLoggedIn && !socket) {
+      const temporary_socket = socketConection();
+    }
+  }, []);
 
   return (
     <div className="relative min-h-screen bg-gray-50">
@@ -226,9 +383,13 @@ export default function Dashboard() {
       </button>
 
       {/* Sidebar */}
-      <Sidebar open={sidebarOpen} closeSidebar={() => setSidebarOpen(false)} />
+      <Sidebar
+        open={sidebarOpen}
+        closeSidebar={() => setSidebarOpen(false)}
+        accountType={accountType}
+      />
 
-      {/* Main content outlet */}
+      {/* Main content */}
       <main className="min-h-screen transition-all">
         <Outlet />
       </main>

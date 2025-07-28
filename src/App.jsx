@@ -1,31 +1,42 @@
 import { Route, Routes } from "react-router-dom";
+import { lazy } from "react";
 import "./App.css";
-import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
-import Dashboard from "./pages/Dashboard";
-import CreateCourse from "./components/course/CreateCourse";
-import Courses from "./components/course/Courses";
-import Subjects from "./components/subject/Subjects";
-import CreateSubject from "./components/subject/CreateSubject";
-import UpdateSubject from "./components/subject/UpdateSubject";
-import Topics from "./components/topic/Topics";
+const Login = lazy(() => import("./pages/Login"));
 import Index from "./components/home/Index";
-import CreateEnquiry from "./components/enquiry/CreateEnquiry";
-import Enquiries from "./components/enquiry/Enquiries";
-import Enquiry from "./components/enquiry/Enquiry";
-import CreateTopic from "./components/topic/CreateTopic";
-import Batches from "./components/batch/Batches";
-import CreateBatch from "./components/batch/CreateBatch";
-import CreateEmployee from "./components/employees/CreateEmployee";
-import Employees from "./components/employees/Employees";
-import Students from "./components/students/Students";
-import AddBatch from "./components/students/AddBatch";
-import CreateExam from "./components/exam/CreateExam";
-import Exams from "./components/exam/Exams";
-import Questions from "./components/questions/Questions";
-import CreateQuestion from "./components/questions/CreateQuestion";
-import CreateMock from "./components/mocks/CreateMock";
-import Mocks from "./components/mocks/Mocks";
+import BatchStudents from "./components/batch/BatchStudents";
+import StudentExams from "./components/exam/StudentExams";
+import StudentQuestions from "./components/exam/StudentQuestions";
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
+const Courses = lazy(() => import("./components/course/Courses"));
+const Subjects = lazy(() => import("./components/subject/Subjects"));
+const CreateSubject = lazy(() => import("./components/subject/CreateSubject"));
+const UpdateSubject = lazy(() => import("./components/subject/UpdateSubject"));
+const Topics = lazy(() => import("./components/topic/Topics"));
+const CreateEnquiry = lazy(() => import("./components/enquiry/CreateEnquiry"));
+const Enquiries = lazy(() => import("./components/enquiry/Enquiries"));
+const Enquiry = lazy(() => import("./components/enquiry/Enquiry"));
+const CreateTopic = lazy(() => import("./components/topic/CreateTopic"));
+const Batches = lazy(() => import("./components/batch/Batches"));
+const CreateBatch = lazy(() => import("./components/batch/CreateBatch"));
+const CreateEmployee = lazy(() =>
+  import("./components/employees/CreateEmployee")
+);
+const Employees = lazy(() => import("./components/employees/Employees"));
+const Students = lazy(() => import("./components/students/Students"));
+const AddBatch = lazy(() => import("./components/students/AddBatch"));
+const CreateExam = lazy(() => import("./components/exam/CreateExam"));
+const Exams = lazy(() => import("./components/exam/Exams"));
+const Questions = lazy(() => import("./components/questions/Questions"));
+const CreateQuestion = lazy(() =>
+  import("./components/questions/CreateQuestion")
+);
+const CreateMock = lazy(() => import("./components/mocks/CreateMock"));
+const Mocks = lazy(() => import("./components/mocks/Mocks"));
+const ProtectedRoute = lazy(() => import("./ProtectedRoute"));
+
+//  for course, subject and topic ,  we should have open route separately.
 
 function App() {
   return (
@@ -33,90 +44,285 @@ function App() {
       <Routes>
         <Route path="/" element={<Index></Index>}></Route>
         <Route path="/login" element={<Login></Login>}></Route>
-        <Route path="/dashboard" element={<Dashboard></Dashboard>}>
+        <Route path="/login/student" element={<Login></Login>}></Route>
+
+        {/* open  route to take the online enquiry */}
+        <Route
+          path="enquiry/add"
+          element={<CreateEnquiry></CreateEnquiry>}
+        ></Route>
+        {/* protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard></Dashboard>
+            </ProtectedRoute>
+          }
+        >
           {/* courses */}
-          <Route path="courses" element={<Courses></Courses>}></Route>
+          <Route
+            path="courses"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Courses></Courses>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="courses/add"
-            element={<CreateCourse></CreateCourse>}
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateCourse></CreateCourse>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
             path="courses/:id/update"
-            element={<CreateCourse></CreateCourse>}
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateCourse></CreateCourse>
+              </ProtectedRoute>
+            }
           ></Route>
           {/*  batches */}
-          <Route path="batches" element={<Batches></Batches>}></Route>
+          <Route
+            path="batches"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "counsellor"]}
+              >
+                <Batches></Batches>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="batches/add"
-            element={<CreateBatch></CreateBatch>}
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateBatch></CreateBatch>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* employees */}
           <Route
             path="employees/add"
-            element={<CreateEmployee></CreateEmployee>}
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateEmployee></CreateEmployee>
+              </ProtectedRoute>
+            }
           ></Route>
-          <Route path="employees" element={<Employees></Employees>}></Route>'
+          <Route
+            path="employees"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <Employees></Employees>
+              </ProtectedRoute>
+            }
+          ></Route>
+          '
           <Route
             path="employees/:id/update"
-            element={<CreateEmployee></CreateEmployee>}
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateEmployee></CreateEmployee>
+              </ProtectedRoute>
+            }
           ></Route>
           {/*  Enquiry */}
           <Route
             path="enquiries/add"
-            element={<CreateEnquiry></CreateEnquiry>}
+            element={
+              <ProtectedRoute allowedRoles={["receptionist", "counsellor"]}>
+                <CreateEnquiry></CreateEnquiry>
+              </ProtectedRoute>
+            }
           ></Route>
-          <Route path="enquiries" element={<Enquiries></Enquiries>}></Route>
-          <Route path="enquiries/:id" element={<Enquiry></Enquiry>}></Route>'
-          {/* subjects */}
+          <Route
+            path="enquiries"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Enquiries></Enquiries>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="enquiries/:id"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Enquiry></Enquiry>
+              </ProtectedRoute>
+            }
+          ></Route>
+          '{/* subjects */}
           <Route
             path="courses/:id/subjects"
-            element={<Subjects></Subjects>}
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Subjects></Subjects>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
-            path="create-subject"
-            element={<CreateSubject></CreateSubject>}
+            path="subjects/add"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateSubject></CreateSubject>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
-            path="subject/edit"
-            element={<UpdateSubject></UpdateSubject>}
+            path="subjects/update"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <UpdateSubject></UpdateSubject>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* topics */}
           <Route
             path="courses/:course_id/subjects/:subject_id/topics"
-            element={<Topics></Topics>}
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Topics></Topics>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
             path="courses/:course_id/subjects/:subject_id/topics/:id/update"
-            element={<CreateTopic></CreateTopic>}
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <CreateTopic></CreateTopic>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* student batch allocation routes */}
-          <Route path="students" element={<Students></Students>}></Route>
+          <Route
+            path="students/no-batch"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <Students></Students>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="students/:id/add-batch"
-            element={<AddBatch></AddBatch>}
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "counsellor", "operations_executive"]}
+              >
+                <AddBatch></AddBatch>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* batch students  */}
+          <Route
+            path="batches/:id/students"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "admin",
+                  "instructor",
+                  "counsellor",
+                  "operations_executive",
+                ]}
+              >
+                <BatchStudents></BatchStudents>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* exam section */}
-          <Route path="exams/add" element={<CreateExam></CreateExam>}></Route>
+          <Route
+            path="exams/add"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateExam></CreateExam>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="exams/update"
-            element={<CreateExam></CreateExam>}
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateExam></CreateExam>
+              </ProtectedRoute>
+            }
           ></Route>
-          <Route path="exams" element={<Exams></Exams>}></Route>
+          <Route
+            path="exams"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
+                <Exams></Exams>
+              </ProtectedRoute>
+            }
+          ></Route>
           {/* Question section  */}
           <Route
             path="exams/:id/questions"
-            element={<Questions></Questions>}
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <Questions></Questions>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
             path="exams/:id/questions/update"
-            element={<CreateQuestion></CreateQuestion>}
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateQuestion></CreateQuestion>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* mocks */}
-          <Route path="mocks/add" element={<CreateMock></CreateMock>}></Route>
-          <Route path="mocks" element={<Mocks></Mocks>}></Route>
+          <Route
+            path="mocks/add"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateMock></CreateMock>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="mocks"
+            element={
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
+                <Mocks></Mocks>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="mocks/:id/update"
-            element={<CreateMock></CreateMock>}
+            element={
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+                <CreateMock></CreateMock>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*   student exams */}
+          <Route
+            path="exams/students"
+            element={<StudentExams></StudentExams>}
+          ></Route>
+          <Route
+            path="exams/:id/conduct"
+            element={<StudentQuestions></StudentQuestions>}
           ></Route>
         </Route>
       </Routes>

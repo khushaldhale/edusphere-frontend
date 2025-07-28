@@ -216,7 +216,7 @@ const Index = () => {
           </div>
           <div
             onClick={() => {
-              navigate("/dashboard/enquiries/add  ");
+              navigate("/enquiry/add  ");
             }}
           >
             <Button className="gradient-primary text-white hover:opacity-90">

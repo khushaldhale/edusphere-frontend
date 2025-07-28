@@ -18,9 +18,25 @@ export const notBatchStudents = createAsyncThunk("notBatchStudents", async (_, {
 	}
 })
 
+export const studentsViaBatch = createAsyncThunk("studentsViaBatch", async (data, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/students?batch=${data.batch_id}`, {
+			method: "GET",
+			credentials: "include"
+		})
+		if (!response.ok) {
+			return rejectWithValue(await response.json());
+		}
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
 const initialState = {
 	isLoading: null,
 	isError: null,
+	students_no_batch: [],
 	students: []
 }
 
@@ -36,10 +52,26 @@ export const studentSlice = createSlice(
 				.addCase(notBatchStudents.fulfilled, (state, action) => {
 					state.isLoading = false;
 					state.isError = false;
-					state.students = action.payload.data;
-					console.log(action.payload.data)
+					state.students_no_batch = action.payload.data;
+
 				})
 				.addCase(notBatchStudents.rejected, (state) => {
+					state.isLoading = false;
+					state.isError = true
+				})
+
+
+
+			builder.addCase(studentsViaBatch.pending, (state) => {
+				state.isError = false;
+				state.isLoading = true;
+			})
+				.addCase(studentsViaBatch.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.students = action.payload.data;
+				})
+				.addCase(studentsViaBatch.rejected, (state) => {
 					state.isLoading = false;
 					state.isError = true
 				})

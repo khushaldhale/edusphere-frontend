@@ -1,2 +1,2 @@
-1. loading remained in  exams.
-2. qustion, mocks remained to test.
+1. categorized whether online or  offline enquiry.
+2. On delete  cascade and on delete set null  kinda  things are remained.
