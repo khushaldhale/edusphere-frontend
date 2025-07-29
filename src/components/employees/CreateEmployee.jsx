@@ -269,7 +269,12 @@ const CreateEmployee = () => {
             }`}
           >
             <option value="">Select account type</option>
-            {["instructor", "counsellor", "receptionist"].map((type) => (
+            {[
+              "instructor",
+              "counsellor",
+              "receptionist",
+              "operations_executive",
+            ].map((type) => (
               <option key={type} value={type}>
                 {type.charAt(0).toUpperCase() + type.slice(1)}
               </option>

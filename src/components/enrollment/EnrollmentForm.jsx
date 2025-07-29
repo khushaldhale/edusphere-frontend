@@ -1,11 +1,9 @@
-import { useState } from "react";
 import useForm from "../../hooks/useForm";
 import { createEnrollment } from "../../redux/slices/enrollmentSlice";
 
 import {
   BookOpen,
   DollarSign,
-  CreditCard,
   Receipt,
   Mail,
   Lock,
@@ -84,7 +82,7 @@ const EnrollmentForm = ({ enquiry_id, courses, isLoading }) => {
     },
     createEnrollment,
     validate,
-    "/",
+    "/dashboard/enquiries",
     "enrollment"
   );
 

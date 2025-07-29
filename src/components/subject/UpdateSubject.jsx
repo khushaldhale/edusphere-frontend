@@ -60,7 +60,7 @@ const UpdateSubject = () => {
     return state.subject.isLoading;
   });
 
-  if (is_loading) {
+  if (is_loading || isLoading) {
     return <Loading></Loading>;
   }
 

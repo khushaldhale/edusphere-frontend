@@ -64,7 +64,7 @@ const Batches = () => {
     },
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingCourses) {
     return <Loading></Loading>;
   }
 

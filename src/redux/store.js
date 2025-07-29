@@ -10,7 +10,11 @@ import employeeSlice from "./slices/employeeSlice";
 import studentSlice from "./slices/studentsSlice";
 import examSlice from "./slices/examSlice";
 import questionSlice from "./slices/questionSlice";
-import mockSlice  from "./slices/mockSlice";
+import mockSlice from "./slices/mockSlice";
+import examAttempSlice from "./slices/examAttemptSlice";
+import answerSlice from "./slices/answerSlice";
+import attendanceSlice from "./slices/attendanceSlice";
+import MockResultSlice from "./slices/MockResult";
 
 
 const store = configureStore(
@@ -27,7 +31,11 @@ const store = configureStore(
 			student: studentSlice,
 			exam: examSlice,
 			question: questionSlice,
-			mock: mockSlice
+			mock: mockSlice,
+			exam_attempt: examAttempSlice,
+			answer: answerSlice,
+			attendance: attendanceSlice,
+			mockResult: MockResultSlice
 		}
 	}
 )

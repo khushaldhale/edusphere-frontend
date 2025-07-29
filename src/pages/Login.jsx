@@ -1,6 +1,10 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
-import { login } from "../redux/slices/authSlice";
+import { login, studentLogin } from "../redux/slices/authSlice";
 import { Mail, Lock, AlertCircle, LogIn } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
+import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const validate = (input_name, value) => {
@@ -23,13 +27,21 @@ const Login = () => {
     }
     return error;
   };
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const required_path = useLocation().pathname.split("/").at(-1);
+  let thunk;
+  if (required_path === "login") {
+    thunk = login;
+  } else {
+    thunk = studentLogin;
+  }
   const [formData, changeHandler, submitHandler, errors] = useForm(
     {
       email: "",
       password: "",
     },
-    login,
+    thunk,
     validate,
     "/dashboard/courses",
     "login"
@@ -48,6 +60,7 @@ const Login = () => {
           onSubmit={submitHandler}
           className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
           noValidate
+          // autoComplete="off"
         >
           {/* Email Input Section */}
           <div className="space-y-2">

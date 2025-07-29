@@ -3,6 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useSocket from "./useSocket";
+import { Navigate } from "react-router-dom";
 
 
 const useForm = (initialValues, thunk, validate, navigate_url, url, state_update) => {
@@ -133,7 +134,6 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 		event.preventDefault();
 		// check for errors
 		let action = Object.values(errors).every((error) => {
-			console.log("error :", error)
 			if (error === "") {
 				return true;
 			}
@@ -197,26 +197,38 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 			dispatch(thunk(formData))
 				.then((action) => {
 					if (action.payload.success) {
-						if (url === "login" && action.payload.data.accountType !== "receptionist") {
-							const temporarySocket = socketConection();
-							if (action.payload.data.accountType === "counsellor") {
-								// This room for the all new enquiries created.
-								temporarySocket.emit("join_room", "enquiry_room");
-							}
-						}
-						toast.success(action.payload.message);
-						if (url === "login" && action.payload.data.accountType === "receptionist") {
-							navigate("/dashboard/create-enquiry")
-						} else {
-							if (navigate_url !== "") {
-								navigate(navigate_url)
-							}
-						}
 
+						if (url === "login") {
+							toast.success(action.payload.message);
+							if (action.payload.data.accountType !== "receptionist") {
+								const temporarySocket = socketConection();
+								if (action.payload.data.accountType === "counsellor") {
+									// This room for the all new enquiries created.
+									temporarySocket.emit("join_room", "enquiry_room");
+								}
+							}
+
+							if (action.payload.data.accountType === "admin") {
+								navigate("/dashboard/courses")
+							} else if (action.payload.data.accountType === "receptionist") {
+								navigate("/dashboard/enquiries/add")
+							} else if (action.payload.data.accountType === "counsellor") {
+								navigate("/dashboard/enquiries")
+							} else if (action.payload.data.accountType === "student") {
+								navigate("/dashboard/courses/enrolled")
+							} else if (action.payload.data.accountType === "instructor") {
+								navigate("/dashboard/courses")
+							}
+
+						} else {
+							toast.success(action.payload.message);
+							if (navigate_url !== "") {
+								navigate(navigate_url);
+							}
+						}
 						if (typeof state_update === "function") {
 							state_update(false);
 						}
-
 					} else {
 						toast.error(action.payload.message);
 					}
@@ -235,10 +247,8 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 export default useForm;
 
 
+
 //  convert the data into the FormData object ,  new FormData() to deal with the files.
-
-
-
 // const number_regex = /[+\-eE\.]/;
 // //  check whether the number is starting with zero or not.
 // if (value.length >= 2 && value.startsWith("0")) {

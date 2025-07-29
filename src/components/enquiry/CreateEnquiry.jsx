@@ -147,6 +147,16 @@ const CreateEnquiry = () => {
     return error || "";
   };
 
+  let navigate_url;
+  const { accountType } = useSelector((state) => {
+    return state.auth.userInfo;
+  });
+
+  if (accountType === "counsellor") {
+    navigate_url = "/dashboard/enquiries";
+  } else {
+    navigate_url = "";
+  }
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
       full_name: "",
@@ -164,8 +174,8 @@ const CreateEnquiry = () => {
       pincode: "",
     },
     createEnquiry,
-    validate,
-    "/dashboard/enquiries",
+    validate, 
+    navigate_url,
     "enquiry"
   );
 

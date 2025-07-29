@@ -1,20 +1,28 @@
 import { User, LayoutList, GraduationCap, PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { addToBatch, getAllBatches } from "../../redux/slices/batchSlice";
 import { toast } from "react-toastify";
+import Loading from "../Loading";
 
 const AddBatch = () => {
   const location = useLocation();
   const data = location.state;
   const dispatch = useDispatch();
   const batches = useSelector((state) => state.batch.batches);
+  const navigate = useNavigate();
+  const isLoading = useSelector((state) => {
+    return state.batch.isLoading;
+  });
 
   useEffect(() => {
     dispatch(getAllBatches({ course_id: data.course_interested }));
   }, [dispatch, data.course_interested]);
 
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-10 px-4">
       <div className="max-w-3xl mx-auto space-y-8">
@@ -95,6 +103,7 @@ const AddBatch = () => {
                       ).then((action) => {
                         if (action.payload.success) {
                           toast.success(action.payload.message);
+                          navigate("/dashboard/students/no-batch");
                         } else {
                           toast.error(action.payload.message);
                         }

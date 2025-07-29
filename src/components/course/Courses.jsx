@@ -1,17 +1,8 @@
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteCourse } from "../../redux/slices/courseSlice";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  BookOpen,
-  Clock,
-  DollarSign,
-  Users,
-  Edit3,
-  Trash2,
-  Eye,
-  Percent,
-} from "lucide-react";
+import { Clock, Edit3, Trash2, Eye } from "lucide-react";
 import useFetchCourses from "../../hooks/useFetchCourses";
 import { useNavigate } from "react-router-dom";
 import Loading from "../Loading";
@@ -19,6 +10,9 @@ import Loading from "../Loading";
 const Courses = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { accountType } = useSelector((state) => {
+    return state.auth.userInfo;
+  });
 
   const [courses, isLoading] = useFetchCourses();
 
@@ -212,32 +206,39 @@ const Courses = () => {
                         <span>View Subjects</span>
                       </motion.button>
 
-                      <motion.button
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
-                        onClick={() => {
-                          navigate(`/dashboard/courses/${course._id}/update`, {
-                            state: course,
-                          });
-                        }}
-                        className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </motion.button>
+                      {accountType === "admin" && (
+                        <>
+                          <motion.button
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                            onClick={() => {
+                              navigate(
+                                `/dashboard/courses/${course._id}/update`,
+                                {
+                                  state: course,
+                                }
+                              );
+                            }}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </motion.button>
 
-                      <motion.button
-                        variants={buttonVariants}
-                        whileHover="hover"
-                        whileTap="tap"
-                        className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
-                        onClick={() => {
-                          console.log("cloked");
-                          delete_course(course._id);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </motion.button>
+                          <motion.button
+                            variants={buttonVariants}
+                            whileHover="hover"
+                            whileTap="tap"
+                            className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+                            onClick={() => {
+                              console.log("cloked");
+                              delete_course(course._id);
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </motion.button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>

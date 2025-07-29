@@ -24,10 +24,10 @@ export const createEnrollment = createAsyncThunk("createEnrollment", async (data
 	}
 })
 
-export const particularEnrollment = createAsyncThunk("particularEnrollment", async (data, { rejectWithValue }) => {
+export const particularEnrollment = createAsyncThunk("particularEnrollment", async (_, { rejectWithValue }) => {
 	try {
 
-		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/enrollments?student=${data.student_id}`, {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/enrollments/student`, {
 			method: "GET",
 			credentials: "include",
 		})
@@ -77,7 +77,6 @@ export const enrollmentSlice = createSlice(
 					state.isError = false;
 					state.isLoading = false;
 					state.enrollment = action.payload.data;
-					console.log("enrollment : ", action.payload.data)
 				})
 				.addCase(particularEnrollment.rejected, (state) => {
 					state.isError = true;
