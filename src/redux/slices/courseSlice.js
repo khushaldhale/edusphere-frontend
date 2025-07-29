@@ -80,10 +80,29 @@ export const updateCourse = createAsyncThunk("updateCourse", async (data, { reje
 	}
 })
 
+export const getParticularCourse = createAsyncThunk("getParticularCourse", async (_, { rejectWithValue }) => {
+	try {
+
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/courses/course`, {
+			method: "GET",
+			credentials: "include"
+		})
+
+		if (!response.ok) {
+			return rejectWithValue(await response.json())
+		}
+
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
 const initialState = {
 	isLoading: null,
 	isError: null,
-	courses: []
+	courses: [],
+	particular_course: null
 }
 export const courseSlice = createSlice(
 	{
@@ -155,6 +174,22 @@ export const courseSlice = createSlice(
 					})
 				})
 				.addCase(updateCourse.rejected, (state, action) => {
+					state.isError = true;
+					state.isLoading = false;
+				})
+
+
+
+			builder.addCase(getParticularCourse.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(getParticularCourse.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.particular_course = action.payload.data
+				})
+				.addCase(getParticularCourse.rejected, (state, action) => {
 					state.isError = true;
 					state.isLoading = false;
 				})

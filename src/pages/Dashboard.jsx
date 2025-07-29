@@ -29,6 +29,11 @@ const menus = [
         roles: ["admin", "counsellor", "operations_executive"],
       },
       { label: "Add Course", to: "/dashboard/courses/add", roles: ["admin"] },
+      {
+        label: "Course Enrolled",
+        to: "/dashboard/courses/enrolled",
+        roles: ["student"],
+      },
     ],
   },
   {
@@ -145,7 +150,7 @@ const roleMenus = {
   ],
   counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
   instructor: ["Settings"],
-  student: ["Exams", "Settings"],
+  student: ["Courses", "Exams", "Settings"],
   receptionist: ["Enquiries", "Settings"],
   operations_executive: [
     "Courses",

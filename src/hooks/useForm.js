@@ -214,8 +214,8 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 								navigate("/dashboard/enquiries/add")
 							} else if (action.payload.data.accountType === "counsellor") {
 								navigate("/dashboard/enquiries")
-							} else {
-								navigate(navigate_url)
+							} else if (action.payload.data.accountType === "student") {
+								navigate("/dashboard/courses/enrolled")
 							}
 
 						} else {

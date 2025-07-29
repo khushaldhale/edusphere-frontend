@@ -7,6 +7,9 @@ import Index from "./components/home/Index";
 import BatchStudents from "./components/batch/BatchStudents";
 import StudentExams from "./components/exam/StudentExams";
 import StudentQuestions from "./components/exam/StudentQuestions";
+import Attendance from "./components/attendance/Attendance";
+import ParticularCourse from "./components/course/ParticularCourse";
+import StudentAttendance from "./components/attendance/StudentAttendance";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -323,6 +326,17 @@ function App() {
           <Route
             path="exams/:id/conduct"
             element={<StudentQuestions></StudentQuestions>}
+          ></Route>
+          {/* attendance */}
+          <Route path="attendance" element={<Attendance></Attendance>}></Route>
+          <Route
+            path="attendance/student"
+            element={<StudentAttendance></StudentAttendance>}
+          ></Route>
+          {/*  course enrollment */}
+          <Route
+            path="courses/enrolled"
+            element={<ParticularCourse></ParticularCourse>}
           ></Route>
         </Route>
       </Routes>

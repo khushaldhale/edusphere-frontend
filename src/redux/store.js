@@ -13,6 +13,7 @@ import questionSlice from "./slices/questionSlice";
 import mockSlice from "./slices/mockSlice";
 import examAttempSlice from "./slices/examAttemptSlice";
 import answerSlice from "./slices/answerSlice";
+import attendanceSlice from "./slices/attendanceSlice";
 
 
 const store = configureStore(
@@ -31,7 +32,8 @@ const store = configureStore(
 			question: questionSlice,
 			mock: mockSlice,
 			exam_attempt: examAttempSlice,
-			answer: answerSlice
+			answer: answerSlice,
+			attendance: attendanceSlice
 		}
 	}
 )
