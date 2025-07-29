@@ -216,6 +216,8 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 								navigate("/dashboard/enquiries")
 							} else if (action.payload.data.accountType === "student") {
 								navigate("/dashboard/courses/enrolled")
+							} else if (action.payload.data.accountType === "instructor") {
+								navigate("/dashboard/courses")
 							}
 
 						} else {
@@ -245,10 +247,8 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 export default useForm;
 
 
+
 //  convert the data into the FormData object ,  new FormData() to deal with the files.
-
-
-
 // const number_regex = /[+\-eE\.]/;
 // //  check whether the number is starting with zero or not.
 // if (value.length >= 2 && value.startsWith("0")) {

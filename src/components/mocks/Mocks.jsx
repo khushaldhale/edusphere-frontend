@@ -76,6 +76,21 @@ const Mocks = () => {
                       whileHover="hover"
                       whileTap="tap"
                       onClick={() => {
+                        navigate(`/dashboard/mocks/${mock._id}/add-marks`);
+                      }}
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Update Mock"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                      <span>Add Marks</span>
+                    </motion.button>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
                         navigate(`/dashboard/mocks/${mock._id}/update`, {
                           state: mock,
                         });

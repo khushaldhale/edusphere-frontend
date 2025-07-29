@@ -4,7 +4,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const createMock = createAsyncThunk("createMock", async (data, { rejectWithValue }) => {
 	try {
-
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/mocks`, {
 			method: "POST",
 			credentials: "include",
@@ -74,10 +73,29 @@ export const getMocks = createAsyncThunk("getMocks", async (data, { rejectWithVa
 	}
 })
 
+export const getBatchStudentsByMock = createAsyncThunk("getBatchStudentsByMock", async (data, { rejectWithValue }) => {
+	try {
+
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/mocks/${data.mock_id}/batch-students`, {
+			method: "GET",
+			credentials: "include",
+		})
+		if (!response.ok) {
+			return rejectWithValue(await response.json());
+		}
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
+
 const initialState = {
 	isLoading: null,
 	isError: null,
-	mocks: []
+	mocks: [],
+	students: [],
+	batch_id: null
 }
 export const mockSlice = createSlice(
 	{
@@ -157,6 +175,24 @@ export const mockSlice = createSlice(
 					})
 				})
 				.addCase(updateMock.rejected, (state, action) => {
+					state.isLoading = false;
+					state.isError = true;
+				})
+
+
+
+			builder.addCase(getBatchStudentsByMock.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(getBatchStudentsByMock.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.students = action.payload.data.batch_id.students;
+					state.batch_id = action.payload.data.batch_id._id;
+
+				})
+				.addCase(getBatchStudentsByMock.rejected, (state, action) => {
 					state.isLoading = false;
 					state.isError = true;
 				})

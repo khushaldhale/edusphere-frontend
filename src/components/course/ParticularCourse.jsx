@@ -41,7 +41,9 @@ const ParticularCourse = () => {
         <p className="text-gray-700 mb-1">{particular_course.course_desc}</p>
         <p className="text-sm font-semibold text-gray-600">
           Duration:{" "}
-          <span className="text-gray-900">{particular_course.duration}</span>
+          <span className="text-gray-900">
+            {particular_course.duration} Months
+          </span>
         </p>
       </div>
       {/* Subjects List */}

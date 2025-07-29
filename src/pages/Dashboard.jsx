@@ -129,6 +129,33 @@ const menus = [
     ],
   },
   {
+    name: "Attendance",
+    icon: <Users className="w-5 h-5 mr-2" />,
+    subMenus: [
+      {
+        label: "Take Attendance",
+        to: "/dashboard/attendance",
+        roles: ["operations_executive", "instructor"],
+      },
+      {
+        label: "Show Attendance",
+        to: "/dashboard/attendance/student",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
+    name: "Payment",
+    icon: <Users className="w-5 h-5 mr-2" />,
+    subMenus: [
+      {
+        label: "Payment Info",
+        to: "/dashboard/student/payment-info",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
     name: "Settings",
     icon: <Settings className="w-5 h-5 mr-2" />,
     to: "/dashboard/settings",
@@ -149,14 +176,15 @@ const roleMenus = {
     "Settings",
   ],
   counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
-  instructor: ["Settings"],
-  student: ["Courses", "Exams", "Settings"],
+  instructor: ["Attendance", "Mocks", "Settings"],
+  student: ["Courses", "Exams", "Attendance", "Payment", "Settings"],
   receptionist: ["Enquiries", "Settings"],
   operations_executive: [
     "Courses",
     "Batches",
     "Staff",
     "Batch Allocation",
+    "Attendance",
     "Exams",
     "Mocks",
     "Settings",

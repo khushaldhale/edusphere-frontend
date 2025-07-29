@@ -10,6 +10,9 @@ import StudentQuestions from "./components/exam/StudentQuestions";
 import Attendance from "./components/attendance/Attendance";
 import ParticularCourse from "./components/course/ParticularCourse";
 import StudentAttendance from "./components/attendance/StudentAttendance";
+import PaymentInfo from "./components/payment/PaymentInfo";
+import MockMarks from "./components/mocks/MockMarks";
+import AddMarks from "./components/mocks/AddMarks";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -318,25 +321,79 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          {/*   student exams */}
+          {/* student exams */}
           <Route
             path="exams/students"
-            element={<StudentExams></StudentExams>}
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentExams></StudentExams>
+              </ProtectedRoute>
+            }
           ></Route>
           <Route
             path="exams/:id/conduct"
-            element={<StudentQuestions></StudentQuestions>}
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentQuestions></StudentQuestions>
+              </ProtectedRoute>
+            }
           ></Route>
           {/* attendance */}
-          <Route path="attendance" element={<Attendance></Attendance>}></Route>
+          {/* Take attendance  */}
+          <Route
+            path="attendance"
+            element={
+              <ProtectedRoute
+                allowedRoles={["operations_executive", "instructor"]}
+              >
+                <Attendance></Attendance>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* Show Attendance */}
           <Route
             path="attendance/student"
-            element={<StudentAttendance></StudentAttendance>}
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentAttendance></StudentAttendance>
+              </ProtectedRoute>
+            }
           ></Route>
           {/*  course enrollment */}
+          {/* show enrolled course */}
           <Route
             path="courses/enrolled"
-            element={<ParticularCourse></ParticularCourse>}
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <ParticularCourse></ParticularCourse>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* payment section */}
+          <Route
+            path="student/payment-info"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <PaymentInfo></PaymentInfo>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*  add mock marks */}
+          <Route
+            path="mocks/:id/add-marks"
+            element={
+              <ProtectedRoute allowedRoles={["instructor"]}>
+                <MockMarks></MockMarks>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="mocks/:id/students/:student/batches/:batch"
+            element={
+              <ProtectedRoute allowedRoles={["instructor"]}>
+                <AddMarks></AddMarks>
+              </ProtectedRoute>
+            }
           ></Route>
         </Route>
       </Routes>
