@@ -156,6 +156,48 @@ const menus = [
     ],
   },
   {
+    name: "Assignment",
+    icon: <Users className="w-5 h-5 mr-2" />,
+    subMenus: [
+      {
+        label: "Create Assignment",
+        to: "/dashboard/assignments/add",
+        roles: ["instructor"],
+      },
+      {
+        label: "All Assignments",
+        to: "/dashboard/instructor/assignments",
+        roles: ["instructor"],
+      },
+      {
+        label: "All Assignments",
+        to: "/dashboard/assignments",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
+    name: "Notes",
+    icon: <Users className="w-5 h-5 mr-2" />,
+    subMenus: [
+      {
+        label: "Create Notes",
+        to: "/dashboard/notes/add",
+        roles: ["instructor"],
+      },
+      {
+        label: "All Notes",
+        to: "/dashboard/instructor/notes",
+        roles: ["instructor"],
+      },
+      {
+        label: "All Notes",
+        to: "/dashboard/notes",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
     name: "Settings",
     icon: <Settings className="w-5 h-5 mr-2" />,
     to: "/dashboard/settings",
@@ -176,8 +218,16 @@ const roleMenus = {
     "Settings",
   ],
   counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
-  instructor: ["Attendance", "Mocks", "Settings"],
-  student: ["Courses", "Exams", "Attendance", "Payment", "Settings"],
+  instructor: ["Attendance", "Mocks", "Assignment", "Notes", "Settings"],
+  student: [
+    "Courses",
+    "Exams",
+    "Attendance",
+    "Payment",
+    "Assignment",
+    "Notes",
+    "Settings",
+  ],
   receptionist: ["Enquiries", "Settings"],
   operations_executive: [
     "Courses",

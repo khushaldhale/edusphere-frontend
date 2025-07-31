@@ -15,6 +15,8 @@ import examAttempSlice from "./slices/examAttemptSlice";
 import answerSlice from "./slices/answerSlice";
 import attendanceSlice from "./slices/attendanceSlice";
 import MockResultSlice from "./slices/MockResult";
+import assignmentSlice from "./slices/assignmentSlice";
+import notesSlice from "./slices/notesSlice";
 
 
 const store = configureStore(
@@ -35,7 +37,9 @@ const store = configureStore(
 			exam_attempt: examAttempSlice,
 			answer: answerSlice,
 			attendance: attendanceSlice,
-			mockResult: MockResultSlice
+			mockResult: MockResultSlice,
+			assignment: assignmentSlice,
+			notes: notesSlice
 		}
 	}
 )

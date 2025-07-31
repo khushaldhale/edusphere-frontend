@@ -13,6 +13,9 @@ import StudentAttendance from "./components/attendance/StudentAttendance";
 import PaymentInfo from "./components/payment/PaymentInfo";
 import MockMarks from "./components/mocks/MockMarks";
 import AddMarks from "./components/mocks/AddMarks";
+import CreateAssignment from "./components/assignments/CreateAssignment";
+import Assignments from "./components/assignments/Assignments";
+import AssignmentFilter from "./components/assignments/AssignmentFilter";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -392,6 +395,56 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["instructor"]}>
                 <AddMarks></AddMarks>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*  asignment routes  */}
+          <Route
+            path="assignments/add"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <CreateAssignment></CreateAssignment>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="instructor/assignments"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <AssignmentFilter></AssignmentFilter>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="assignments"
+            element={
+              <ProtectedRoute allowedRoles={"student"}>
+                <Assignments></Assignments>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* notes section */}
+          <Route
+            path="notes/add"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <CreateAssignment></CreateAssignment>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="instructor/notes"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <AssignmentFilter></AssignmentFilter>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="notes"
+            element={
+              <ProtectedRoute allowedRoles={"student"}>
+                <Assignments></Assignments>
               </ProtectedRoute>
             }
           ></Route>

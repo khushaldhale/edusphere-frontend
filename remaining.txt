@@ -3,3 +3,8 @@
 3. test the  updation  everywhere
 4. get the data via single doc, :id for update api, as of now  u r getting it from location.state.
 5. Mock, Exam  and Subjects can  be duplicated in the collection ,   so handle it in the API.
+
+
+
+ Remaining work to be done  from  beginning.
+ 
