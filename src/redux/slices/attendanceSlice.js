@@ -38,10 +38,26 @@ export const getAttendance = createAsyncThunk("getAttendance", async (data, { re
 	}
 })
 
+export const getAttendanceViaDate = createAsyncThunk("getAttendanceViaDate", async (data, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/attendance/marked?batch=${data.batch_id}&date=${data.date}`, {
+			method: "GET",
+			credentials: "include",
+		})
+		if (!response.ok) {
+			const errorData = await response.json();
+			return rejectWithValue(errorData)
+		}
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error)
+	}
+})
 const initialState = {
 	isLoading: null,
 	isError: null,
-	attendance: []
+	attendance: [],
+	markedAttendance: []
 }
 
 export const attendanceSlice = createSlice(
@@ -73,6 +89,21 @@ export const attendanceSlice = createSlice(
 					state.attendance = action.payload.data
 				})
 				.addCase(getAttendance.rejected, (state, action) => {
+					state.isLoading = false;
+					state.isError = true;
+				})
+
+
+			builder.addCase(getAttendanceViaDate.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(getAttendanceViaDate.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.markedAttendance = action.payload.data
+				})
+				.addCase(getAttendanceViaDate.rejected, (state, action) => {
 					state.isLoading = false;
 					state.isError = true;
 				})

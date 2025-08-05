@@ -151,7 +151,13 @@ const CreateEnquiry = () => {
   const { accountType } = useSelector((state) => {
     return state.auth.userInfo;
   });
-
+  // check whether the  enquiry  is in-person or online.
+  let enquiry_type = "";
+  if (accountType === "receptionist" || accountType === "counsellor") {
+    enquiry_type = "in-person";
+  } else {
+    enquiry_type = "online";
+  }
   if (accountType === "counsellor") {
     navigate_url = "/dashboard/enquiries";
   } else {
@@ -159,7 +165,8 @@ const CreateEnquiry = () => {
   }
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
-      full_name: "",
+      fname: "",
+      lname: "",
       contact_number: "",
       address: "",
       last_qualification: "",
@@ -172,9 +179,10 @@ const CreateEnquiry = () => {
       area: "",
       city: "",
       pincode: "",
+      enquiry_type,
     },
     createEnquiry,
-    validate, 
+    validate,
     navigate_url,
     "enquiry"
   );
@@ -212,38 +220,73 @@ const CreateEnquiry = () => {
               </h2>
             </div>
 
-            {/* Full Name */}
+            {/* First Name */}
             <div className="space-y-2">
               <label
-                htmlFor="full_name"
+                htmlFor="fname"
                 className="flex items-center text-sm font-semibold text-gray-700"
               >
                 <User className="w-4 h-4 mr-2 text-gray-500" />
-                Full Name
+                First Name
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  name="full_name"
-                  id="full_name"
+                  name="fname"
+                  id="fname"
                   required
-                  placeholder="Enter full name"
+                  placeholder="Enter First name"
                   onChange={changeHandler}
-                  value={formData.full_name}
+                  value={formData.fname}
                   className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
                   ${
-                    errors?.full_name
+                    errors?.fname
                       ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                       : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
                   }
                   focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
                 />
               </div>
-              {errors?.full_name && (
+              {errors?.fname && (
                 <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
                   <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span>{errors.full_name}</span>
+                  <span>{errors.fname}</span>
+                </div>
+              )}
+            </div>
+            {/* Last Name */}
+            <div className="space-y-2">
+              <label
+                htmlFor="lname"
+                className="flex items-center text-sm font-semibold text-gray-700"
+              >
+                <User className="w-4 h-4 mr-2 text-gray-500" />
+                Last Name
+                <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="lname"
+                  id="lname"
+                  required
+                  placeholder="Enter Last name"
+                  onChange={changeHandler}
+                  value={formData.lname}
+                  className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200
+                  ${
+                    errors?.lname
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-200 focus:border-blue-500 focus:ring-blue-200"
+                  }
+                  focus:ring-4 focus:ring-opacity-20 outline-none bg-white hover:border-gray-300`}
+                />
+              </div>
+              {errors?.lname && (
+                <div className="flex items-center mt-2 text-red-600 text-sm animate-fade-in">
+                  <AlertCircle className="w-4 h-4 mr-1 flex-shrink-0" />
+                  <span>{errors.lname}</span>
                 </div>
               )}
             </div>

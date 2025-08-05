@@ -17,41 +17,44 @@ const MockMarks = () => {
   }, [dispatch, mock_id]);
 
   return (
-    <div className="max-w-3xl mx-auto mt-12 p-6">
-      <h2 className="text-2xl font-semibold mb-6">Mock Students</h2>
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex justify-center">
+      <div className="w-full max-w-3xl">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8">Mock Students</h2>
 
-      {students.length > 0 ? (
-        <div className="grid grid-cols-1 gap-5">
-          {students.map((student) => (
-            <div
-              key={student._id}
-              className="flex items-center justify-between bg-white border border-gray-200 rounded-xl shadow-sm px-5 py-4"
-            >
-              <div className="flex items-center gap-3">
-                <User className="w-8 h-8 text-blue-600 bg-blue-50 rounded-full p-1" />
-                <span className="text-lg font-semibold text-gray-900">
-                  {student.full_name}
-                </span>
-              </div>
-              <button
-                onClick={() =>
-                  navigate(
-                    `/dashboard/mocks/${mock_id}/students/${student._id}/batches/${batch_id}`
-                  )
-                }
-                className="flex items-center gap-2 py-2 px-4 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-semibold shadow transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+        {students.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5">
+            {students.map((student) => (
+              <div
+                key={student._id}
+                className="flex items-center justify-between bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4"
               >
-                <PlusCircle className="w-5 h-5" />
-                Add Marks
-              </button>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center bg-white shadow py-10 rounded-xl border border-gray-100 text-gray-500 font-semibold">
-          No student exists in this batch for this mock.
-        </div>
-      )}
+                <div className="flex items-center gap-4">
+                  <User className="w-10 h-10 text-blue-600 bg-blue-50 rounded-full p-1" />
+                  <span className="text-lg font-semibold text-gray-900">
+                    {student.fname} {student.lname}
+                  </span>
+                </div>
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/dashboard/mocks/${mock_id}/students/${student._id}/batches/${batch_id}`
+                    )
+                  }
+                  className="flex items-center gap-2 py-2 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  aria-label="Add Marks for student"
+                >
+                  <PlusCircle className="w-5 h-5" />
+                  Add Marks
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center bg-white shadow rounded-xl border border-gray-100 py-10 text-gray-500 font-semibold">
+            No student exists in this batch for this mock.
+          </div>
+        )}
+      </div>
     </div>
   );
 };

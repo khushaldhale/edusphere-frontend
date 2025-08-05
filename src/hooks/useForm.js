@@ -217,7 +217,7 @@ const useForm = (initialValues, thunk, validate, navigate_url, url, state_update
 							} else if (action.payload.data.accountType === "student") {
 								navigate("/dashboard/courses/enrolled")
 							} else if (action.payload.data.accountType === "instructor") {
-								navigate("/dashboard/courses")
+								navigate("/dashboard/attendance")
 							}
 
 						} else {

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEnquiries,
@@ -15,75 +15,75 @@ import {
   Briefcase,
   Building,
   LayoutList,
-  MessageSquareMore, // For Follow Up
-  CheckCircle, // For Converted
-  XCircle,
-  BookOpen, // For course interested
-  AlertCircle, // For general alerts/errors, though not used in this specific display
-} from "lucide-react"; // Imported necessary Lucide icons
+  MessageSquareMore,
+  BookOpen,
+} from "lucide-react";
 import { SocketContext } from "../../SocketProvider";
 import { getCourses } from "../../redux/slices/courseSlice";
 import { useNavigate } from "react-router-dom";
 import Loading from "../Loading";
+import { toast } from "react-toastify";
 
 const Enquiries = () => {
-  // Selects enquiries from the Redux store
+  // Redux state and helpers
   const enquiries = useSelector((state) => state.enquiry.enquiries);
   const dispatch = useDispatch();
   const { socket } = useContext(SocketContext);
   const navigate = useNavigate();
-  const userInfo = useSelector((state) => {
-    return state.auth.userInfo;
-  });
-  const courses = useSelector((state) => {
-    return state.course.courses;
-  });
+  const userInfo = useSelector((state) => state.auth.userInfo);
+  const courses = useSelector((state) => state.course.courses);
 
-  // Defines the available status options for filtering enquiries
   const statusOptions = ["new", "follow-up", "converted", "processing"];
-
-  // State to manage which status button is currently active for styling
   const [activeStatus, setActiveStatus] = useState("new");
 
-  // Function to fetch enquiries based on the selected status
+  // Ref to always have the fresh value of activeStatus in handlers
+  const activeStatusRef = useRef(activeStatus);
+
+  // Sync ref with state
+  useEffect(() => {
+    activeStatusRef.current = activeStatus;
+  }, [activeStatus]);
+
   const fetch_enquiries = (event) => {
     const selectedStatus = event.target.value;
-    setActiveStatus(selectedStatus); // Update the active status state
-    dispatch(getEnquiries({ status: selectedStatus })); // Dispatch action to get enquiries
+    setActiveStatus(selectedStatus);
+    dispatch(getEnquiries({ status: selectedStatus }));
   };
 
+  // Use the ref here instead of activeStatus
   const add_enquiry = (data) => {
-    dispatch(new_enquiry(data));
+    toast.info("New Enquiry is Admitted.");
+    if (activeStatusRef.current === "new") {
+      dispatch(new_enquiry(data));
+    }
   };
 
   const mark_as_processed = (enquiry) => {
     if (socket) {
-      //  event emmited
       socket.emit("processing", enquiry);
-      // navigated.
-      navigate(`/dashboard/enquiries/${enquiry._id}`, {
-        state: enquiry,
-      });
+      navigate(`/dashboard/enquiries/${enquiry._id}`, { state: enquiry });
     }
     dispatch(markAsProcessed({ enquiry_id: enquiry._id }));
   };
 
   const processing_enquiry = (data) => {
-    //   remove the data from  the list if  status  is new
     dispatch(remove_enquiry(data));
   };
 
-  const is_loading = useSelector((state) => {
-    return state.enquiry.isLoading;
-  });
+  const is_loading = useSelector((state) => state.enquiry.isLoading);
 
   useEffect(() => {
     dispatch(getEnquiries({ status: "new" }));
     dispatch(getCourses());
   }, [dispatch]);
 
-  // listening to the socket event.
+  // Set up socket listeners only once
   useEffect(() => {
+    console.log(
+      "connection established  here for socket and listen events  : ",
+      socket
+    );
+
     if (socket) {
       if (userInfo.accountType === "counsellor") {
         socket?.on("new_enquiry", add_enquiry);
@@ -94,9 +94,9 @@ const Enquiries = () => {
       socket?.off("new_enquiry", add_enquiry);
       socket?.off("processing_enquiry", processing_enquiry);
     };
-  }, [socket]);
+    // Only run on mount/unmount, not on activeStatus changes
+  }, [socket, userInfo.accountType]);
 
-  // Helper function to determine the Tailwind CSS classes for status badges based on status
   const getStatusColor = (status) => {
     switch (status) {
       case "new":
@@ -113,7 +113,7 @@ const Enquiries = () => {
   };
 
   if (is_loading) {
-    return <Loading></Loading>;
+    return <Loading />;
   }
 
   return (
@@ -141,32 +141,30 @@ const Enquiries = () => {
                 transition-all duration-300 ease-in-out
                 ${
                   activeStatus === element
-                    ? "bg-blue-600 text-white shadow-md transform scale-105" // Active state styling
-                    : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700" // Inactive state styling
+                    ? "bg-blue-600 text-white shadow-md transform scale-105"
+                    : "bg-gray-200 text-gray-700 hover:bg-blue-100 hover:text-blue-700"
                 }
                 focus:outline-none focus:ring-4 focus:ring-blue-200 focus:ring-opacity-50
               `}
             >
-              {/* Formats "follow-up" to "follow up" for display */}
               {element.replace("-", " ")}
             </button>
           ))}
         </div>
 
-        {/* lg:grid-cols-3 */}
         {/* Enquiries Display Grid */}
         {enquiries.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2  gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             {enquiries.map((enquiry) => (
               <div
-                key={enquiry._id} // Unique key for each enquiry card
+                key={enquiry._id}
                 className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl p-6 space-y-4 border border-gray-100 transform hover:scale-[1.02] transition-transform duration-200 ease-in-out"
               >
-                {/* Card Header: Full Name and Status Badge */}
+                {/* Card Header */}
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-xl font-bold text-gray-900">
                     <User className="inline-block w-5 h-5 mr-2 text-blue-600" />
-                    {enquiry.full_name}
+                    {enquiry.fname + "  " + enquiry.lname}
                   </h3>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(
@@ -213,11 +211,11 @@ const Enquiries = () => {
                     <BookOpen className="w-4 h-4 mr-2 text-gray-500" />
                     <span className="font-medium mr-1">Course ID:</span>{" "}
                     {courses.length > 0 &&
-                      courses.find((elemnt) => {
-                        if (elemnt._id === enquiry.course_interested) {
+                      courses.find((element) => {
+                        if (element._id === enquiry.course_interested) {
                           return true;
                         }
-                      }).course_name}
+                      })?.course_name}
                   </p>
                   <p className="flex items-center">
                     <LayoutList className="w-4 h-4 mr-2 text-gray-500" />
@@ -227,8 +225,7 @@ const Enquiries = () => {
                     {enquiry.learning_mode.charAt(0).toUpperCase() +
                       enquiry.learning_mode.slice(1)}
                   </p>
-
-                  {/* Address Section - Moved to the end */}
+                  {/* Address Section */}
                   <p className="flex items-start pt-2 border-t border-gray-100">
                     <MapPin className="w-4 h-4 mr-2 text-gray-500 mt-1" />
                     <span className="font-medium mr-1">City:</span>{" "}
@@ -236,9 +233,8 @@ const Enquiries = () => {
                     <span className="font-medium ml-2 mr-1">Pincode:</span>{" "}
                     {enquiry.address.pincode}
                   </p>
-
                   {/* Action Buttons */}
-                  <div className="grid grid-cols-1  mt-4 pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-1 mt-4 pt-4 border-t border-gray-100">
                     <button
                       onClick={() => mark_as_processed(enquiry)}
                       className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white font-semibold text-sm rounded-lg transition-all duration-200 transform hover:scale-105 focus:ring-4  shadow-md"

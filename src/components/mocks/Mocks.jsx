@@ -27,7 +27,7 @@ const Mocks = () => {
     <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 py-10 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 flex  justify-center items-center gap-3">
           Mocks
         </h1>
 
@@ -46,7 +46,7 @@ const Mocks = () => {
             {mocks.map((mock) => (
               <div
                 key={mock._id}
-                className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 flex flex-col"
+                className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <FileText className="w-5 h-5 text-blue-600" />
@@ -54,8 +54,10 @@ const Mocks = () => {
                     {mock.name}
                   </h2>
                 </div>
+
                 <p className="text-gray-700 mb-3">{mock.desc}</p>
-                <div className="flex flex-col gap-2 text-gray-700 text-sm mb-1">
+
+                <div className="flex flex-col gap-2 text-gray-700 text-sm mb-4">
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4 text-orange-500" />
                     <span className="font-semibold">Total Marks:</span>{" "}
@@ -67,10 +69,10 @@ const Mocks = () => {
                     {subjects.find((subject) => subject._id === mock.subject)
                       ?.name || "Unknown"}
                   </div>
-                  {/* Add more mock details here if needed */}
                 </div>
-                {/* action buttons */}
-                <div className="px-4 pt-4 mt-auto">
+
+                {/* Action buttons */}
+                <div className="mt-auto pt-4 border-t border-gray-100">
                   <div className="flex items-center gap-3">
                     <motion.button
                       whileHover="hover"
@@ -78,15 +80,15 @@ const Mocks = () => {
                       onClick={() => {
                         navigate(`/dashboard/mocks/${mock._id}/add-marks`);
                       }}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
-                      aria-label="Update Mock"
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Add Marks to Mock"
                     >
-                      <Edit3 className="w-4 h-4" />
-                      <span>Add Marks</span>
+                      <Edit3 className="w-4 h-4 text-white" />
+                      Add Marks
                     </motion.button>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 mt-3">
                     <motion.button
                       whileHover="hover"
                       whileTap="tap"
@@ -95,11 +97,11 @@ const Mocks = () => {
                           state: mock,
                         });
                       }}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md text-sm"
                       aria-label="Update Mock"
                     >
                       <Edit3 className="w-4 h-4" />
-                      <span>Update</span>
+                      Update
                     </motion.button>
 
                     <motion.button
@@ -118,11 +120,11 @@ const Mocks = () => {
                           }
                         );
                       }}
-                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-1 shadow-md hover:shadow-lg text-sm"
+                      className="flex-1 bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md text-sm"
                       aria-label="Delete Mock"
                     >
                       <Trash2 className="w-4 h-4" />
-                      <span>Delete</span>
+                      Delete
                     </motion.button>
                   </div>
                 </div>

@@ -9,7 +9,17 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
+  User, // for Staff
+  ClipboardList, // for Enquiries
+  UserPlus, // for Batch Allocation
+  FileText, // for Exams, Assignments, Notes
+  Monitor, // for Mocks
+  CalendarCheck, // for Attendance
+  CreditCard, // for Payment
+  BarChart2, // for Analytics
+  Pen, // alternate Assignment icon
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
@@ -54,7 +64,7 @@ const menus = [
   },
   {
     name: "Staff",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <User className="w-5 h-5 mr-2" />, // Changed from Users to User
     subMenus: [
       {
         label: "All Staff",
@@ -66,7 +76,7 @@ const menus = [
   },
   {
     name: "Enquiries",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <ClipboardList className="w-5 h-5 mr-2" />, // Changed to ClipboardList
     subMenus: [
       {
         label: "All Enquiries",
@@ -82,7 +92,7 @@ const menus = [
   },
   {
     name: "Batch Allocation",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <UserPlus className="w-5 h-5 mr-2" />, // Changed to UserPlus
     subMenus: [
       {
         label: "Students",
@@ -92,45 +102,8 @@ const menus = [
     ],
   },
   {
-    name: "Exams",
-    icon: <Users className="w-5 h-5 mr-2" />,
-    subMenus: [
-      {
-        label: "All Exams",
-        to: "/dashboard/exams",
-        roles: ["admin", "operations_executive", "instructor"],
-      },
-      {
-        label: "Add Exam",
-        to: "/dashboard/exams/add",
-        roles: ["admin", "operations_executive"],
-      },
-      {
-        label: "Appear for Exam",
-        to: "/dashboard/exams/students",
-        roles: ["student"],
-      },
-    ],
-  },
-  {
-    name: "Mocks",
-    icon: <Users className="w-5 h-5 mr-2" />,
-    subMenus: [
-      {
-        label: "All Mocks",
-        to: "/dashboard/mocks",
-        roles: ["admin", "operations_executive", "instructor"],
-      },
-      {
-        label: "Add Mock",
-        to: "/dashboard/mocks/add",
-        roles: ["admin", "operations_executive"],
-      },
-    ],
-  },
-  {
     name: "Attendance",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <CalendarCheck className="w-5 h-5 mr-2" />, // Changed to CalendarCheck
     subMenus: [
       {
         label: "Take Attendance",
@@ -144,20 +117,10 @@ const menus = [
       },
     ],
   },
-  {
-    name: "Payment",
-    icon: <Users className="w-5 h-5 mr-2" />,
-    subMenus: [
-      {
-        label: "Payment Info",
-        to: "/dashboard/student/payment-info",
-        roles: ["student"],
-      },
-    ],
-  },
+
   {
     name: "Assignment",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <Pen className="w-5 h-5 mr-2" />, // Changed to Pen icon
     subMenus: [
       {
         label: "Create Assignment",
@@ -165,7 +128,7 @@ const menus = [
         roles: ["instructor"],
       },
       {
-        label: "All Assignments",
+        label: "Manage Assignments",
         to: "/dashboard/instructor/assignments",
         roles: ["instructor"],
       },
@@ -178,7 +141,7 @@ const menus = [
   },
   {
     name: "Notes",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: <BookOpen className="w-5 h-5 mr-2" />, // Changed to BookOpen for notes
     subMenus: [
       {
         label: "Create Notes",
@@ -186,7 +149,7 @@ const menus = [
         roles: ["instructor"],
       },
       {
-        label: "All Notes",
+        label: "Manage Notes",
         to: "/dashboard/instructor/notes",
         roles: ["instructor"],
       },
@@ -198,10 +161,63 @@ const menus = [
     ],
   },
   {
+    name: "Exams",
+    icon: <FileText className="w-5 h-5 mr-2" />, // Changed to FileText for exam papers
+    subMenus: [
+      {
+        label: "All Exams",
+        to: "/dashboard/exams",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "Add Exam",
+        to: "/dashboard/exams/add",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "Appear for Exam",
+        to: "/dashboard/exams/students",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
+    name: "Mocks",
+    icon: <Monitor className="w-5 h-5 mr-2" />, // Changed to Monitor
+    subMenus: [
+      {
+        label: "Manage Mocks",
+        to: "/dashboard/mocks",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "Add Mock",
+        to: "/dashboard/mocks/add",
+        roles: ["admin", "operations_executive", "instructor"],
+      },
+      {
+        label: "All Mocks",
+        to: "/dashboard/student/mocks",
+        roles: ["student"],
+      },
+    ],
+  },
+
+  {
+    name: "Analytics",
+    icon: <BarChart2 className="w-5 h-5 mr-2" />, // Changed to BarChart2 icon
+    subMenus: [
+      {
+        label: "Performance",
+        to: "/dashboard/student/performance",
+        roles: ["student"],
+      },
+    ],
+  },
+  {
     name: "Settings",
     icon: <Settings className="w-5 h-5 mr-2" />,
     to: "/dashboard/settings",
-    // shown if menu name is whitelisted in roleMenus
   },
 ];
 
@@ -218,14 +234,22 @@ const roleMenus = {
     "Settings",
   ],
   counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
-  instructor: ["Attendance", "Mocks", "Assignment", "Notes", "Settings"],
-  student: [
-    "Courses",
-    "Exams",
+  instructor: [
     "Attendance",
-    "Payment",
     "Assignment",
     "Notes",
+    "Exams",
+    "Mocks",
+    "Settings",
+  ],
+  student: [
+    "Exams", // appear exams
+    "Attendance", //self attendance
+    "Assignment", //assignment shared
+    "Notes", //notes  shared
+    "Mocks", // mocks mark shared
+    "Courses", // course enrollment, subject and topic
+    "Analytics", // dashboard
     "Settings",
   ],
   receptionist: ["Enquiries", "Settings"],
@@ -451,6 +475,10 @@ export default function Dashboard() {
     //  establish sicket connection  when person is logged in
     if (isLoggedIn && !socket) {
       const temporary_socket = socketConection();
+      if (accountType === "counsellor") {
+        temporary_socket.emit("join_room", "enquiry_room");
+      }
+      console.log("temporary connection  done : ", temporary_socket);
     }
   }, []);
 

@@ -48,12 +48,28 @@ export const getStudent = createAsyncThunk("getStudent", async (_, { rejectWithV
 	}
 })
 
+
+export const getPerformance = createAsyncThunk("getPerformance", async (_, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/students/student/dashboard`, {
+			method: "GET",
+			credentials: "include"
+		})
+		if (!response.ok) {
+			return rejectWithValue(await response.json());
+		}
+		return await response.json();
+	} catch (error) {
+		return rejectWithValue(error)
+	}
+})
 const initialState = {
 	isLoading: null,
 	isError: null,
 	students_no_batch: [],
 	students: [],
-	student: null
+	student: null,
+	performance: null
 }
 
 export const studentSlice = createSlice(
@@ -103,6 +119,21 @@ export const studentSlice = createSlice(
 					state.student = action.payload.data;
 				})
 				.addCase(getStudent.rejected, (state) => {
+					state.isLoading = false;
+					state.isError = true
+				})
+
+
+			builder.addCase(getPerformance.pending, (state) => {
+				state.isError = false;
+				state.isLoading = true;
+			})
+				.addCase(getPerformance.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.performance = action.payload.data;
+				})
+				.addCase(getPerformance.rejected, (state) => {
 					state.isLoading = false;
 					state.isError = true
 				})

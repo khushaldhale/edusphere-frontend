@@ -215,8 +215,8 @@ const Index = () => {
             </motion.div>
           </div>
           <div
-            onClick={() => {
-              navigate("/enquiry/add  ");
+            onClick={() => {  
+              navigate("/enquiry/add");
             }}
           >
             <Button className="gradient-primary text-white hover:opacity-90">

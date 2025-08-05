@@ -21,16 +21,17 @@ import { useEffect, useRef } from "react";
 import Loading from "../Loading";
 
 const CreateExam = () => {
-  const [courses, isLoading] = useFetchCourses();
+  const [courses] = useFetchCourses();
   const dispatch = useDispatch();
   const location = useLocation();
   const data = location.state;
   const is_loading = useSelector((state) => state.exam.isLoading);
   const required_path = location.pathname.split("/").at(-1);
-  const batches = useSelector((state) => state.batch.batches);
-  const subjects = useSelector((state) => state.subject.subjects);
+  const batches = useSelector((state) => state.batch.batches || []);
+  const subjects = useSelector((state) => state.subject.subjects || []);
   const durationRef = useRef();
   const marksRef = useRef();
+
   let thunk;
   if (required_path === "update") {
     thunk = updateExam;
@@ -39,75 +40,46 @@ const CreateExam = () => {
     thunk = createExam;
   }
 
-  const validate = (input_name, value, formData) => {
-    let error = "";
-
+  const validate = (input_name, value) => {
     switch (input_name) {
-      case "name": {
-        if (!value.trim()) {
-          error = "Name is required.";
-        } else if (value && value.length < 2) {
-          error = "Minimum 2 characters are required.";
-        }
+      case "name":
+        if (!value.trim()) return "Name is required.";
+        if (value.length < 2) return "Minimum 2 characters are required.";
         break;
-      }
-      case "desc": {
-        if (!value.trim()) {
-          error = "Description is required.";
-        } else if (value && value.length < 10) {
-          error = "Minimum 10 characters are required.";
-        }
+      case "desc":
+        if (!value.trim()) return "Description is required.";
+        if (value.length < 10) return "Minimum 10 characters are required.";
         break;
-      }
-      case "subject": {
-        if (!value.trim()) {
-          error = "Subject is required.";
-        }
+      case "subject":
+        if (!value.trim()) return "Subject is required.";
         break;
-      }
-      case "total_marks": {
-        if (typeof value !== "number") {
-          error = "Provide Number only.";
-        } else if (typeof value === "number" && value < 10) {
-          error = "Minimum marks for the exam is 10.";
-        }
+      case "total_marks":
+        if (typeof value !== "number") return "Provide Number only.";
+        if (value < 10) return "Minimum marks for the exam is 10.";
         break;
-      }
-      case "duration": {
-        if (typeof value !== "number") {
-          error = "Provide Number only.";
-        } else if (typeof value === "number" && value < 15) {
-          error = "Minimum time for the exam is 15.";
-        }
+      case "duration":
+        if (typeof value !== "number") return "Provide Number only.";
+        if (value < 15) return "Minimum time for the exam is 15.";
         break;
-      }
-      case "exam_date": {
-        let currentDate = new Date(Date.now());
-        if (new Date(value) < currentDate) {
-          error = "Date cannot be in past.";
-        }
+      case "exam_date":
+        if (new Date(value) < new Date(Date.now()))
+          return "Date cannot be in past.";
         break;
-      }
-      case "course": {
-        if (!value.trim()) {
-          error = "Course is required.";
-        }
+      case "course":
+        if (!value.trim()) return "Course is required.";
         break;
-      }
-      case "batch": {
-        if (!value.trim()) {
-          error = "Batch is required.";
-        }
+      case "batch":
+        if (!value.trim()) return "Batch is required.";
         break;
-      }
+      default:
+        return "";
     }
-    return error;
+    return "";
   };
 
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
       name: data?.name || "",
-      desc: data?.desc || "",
       course: data?.course || "",
       batch: data?.batch || "",
       subject: data?.subject || "",
@@ -122,12 +94,14 @@ const CreateExam = () => {
     "exam"
   );
 
-  // When selecting a course, fetch batches and subjects for that course
-  const handleCourseChange = (event) => {
-    const { value } = event.target;
+  const handleCourseChange = (e) => {
+    const value = e.target.value;
     setFormData((prev) => ({ ...prev, course: value, batch: "", subject: "" }));
-    dispatch(getAllBatches({ course_id: value }));
-    dispatch(getSubjects({ course_id: value }));
+    dispatch(getAllBatches({ course_id: value })).then((action) => {
+      if (action.payload?.success) {
+        dispatch(getSubjects({ course_id: value }));
+      }
+    });
   };
 
   useEffect(() => {
@@ -136,340 +110,279 @@ const CreateExam = () => {
       marksRef.current.value = data.total_marks;
       dispatch(getSubjects({ course_id: data.course }));
     }
-  }, [dispatch]);
+  }, [dispatch, data, required_path]);
 
   useEffect(() => {
-    setFormData((prevData) => {
-      return {
-        ...prevData,
-        subject: data?.subject,
-      };
-    });
-  }, [subjects]);
+    setFormData((prev) => ({ ...prev, subject: data?.subject }));
+  }, [subjects, data, setFormData]);
 
-  if (isLoading || is_loading) {
-    return <Loading></Loading>;
+  if (is_loading) {
+    return <Loading />;
   }
-  return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen py-8 px-4">
-      <div className="max-w-3xl mx-auto">
-        <form
-          onSubmit={(event) => {
-            durationRef.current.value = "";
-            submitHandler(event);
-          }}
-          className="bg-white/80 backdrop-blur-sm shadow-2xl rounded-3xl p-8 space-y-8 border border-gray-100"
-        >
-          <h2 className="text-2xl font-semibold text-gray-800 flex items-center mb-8">
-            <ScrollText className="w-7 h-7 text-blue-600 mr-2" />
-            {required_path === "update" ? "Update" : "Create New"} Exam
-          </h2>
 
-          {/* Exam Name */}
-          <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <FileText className="w-4 h-4 mr-2 text-purple-600" />
-              Exam Name <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              id="name"
-              name="name"
-              required
-              placeholder="Enter exam name (e.g., Midterm)"
-              value={formData.name}
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
+  return (
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+          <ScrollText className="w-7 h-7 text-blue-600" />
+          {required_path === "update" ? "Update" : "Create New"} Exam
+        </h2>
+        <form onSubmit={submitHandler} className="space-y-8" noValidate>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Exam Name */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <FileText className="w-5 h-5 mr-2 text-blue-600" />
+                Exam Name <span className="text-red-500 ml-1">*</span>
+              </label>
+              <input
+                id="name"
+                name="name"
+                placeholder="Enter exam name (e.g., Midterm)"
+                value={formData.name}
+                onChange={changeHandler}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                   errors.name
                     ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
-            {errors.name && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.name}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label
-              htmlFor="desc"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <FileText className="w-4 h-4 mr-2 text-gray-500" />
-              Description <span className="text-red-500 ml-1">*</span>
-            </label>
-            <textarea
-              name="desc"
-              id="desc"
-              required
-              rows={3}
-              placeholder="Brief description, syllabus or guidelines for the exam."
-              value={formData.desc}
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none resize-none bg-white hover:border-gray-300
-                ${
-                  errors.desc
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
-            {errors.desc && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.desc}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Course selection */}
-          <div className="space-y-2">
-            <label
-              className="flex items-center text-sm font-semibold text-gray-700"
-              htmlFor="course"
-            >
-              <BookOpen className="w-4 h-4 mr-2 text-blue-600" />
-              Course <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="relative">
-              <select
-                id="course"
-                name="course"
-                required
-                value={formData.course}
-                onChange={handleCourseChange}
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.course
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-              >
-                <option value="">Select any course</option>
-                {courses.length > 0 &&
-                  courses.map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.course_name}
-                    </option>
-                  ))}
-              </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <BookOpen className="w-4 h-4 text-gray-300" />
-              </div>
+                    : "border-gray-300"
+                }`}
+              />
+              {errors.name && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.name}
+                </p>
+              )}
             </div>
-            {errors.course && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.course}</span>
-              </div>
-            )}
-          </div>
 
-          {/* Batch selection (depends on selected course) */}
-          <div className="space-y-2">
-            <label
-              className="flex items-center text-sm font-semibold text-gray-700"
-              htmlFor="batch"
-            >
-              <Layers className="w-4 h-4 mr-2 text-purple-600" />
-              Batch <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="relative">
-              <select
-                id="batch"
-                name="batch"
-                required
-                value={formData.batch}
+            {/* Course */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="course"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+                Course <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="relative">
+                <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  id="course"
+                  name="course"
+                  value={formData.course}
+                  onChange={handleCourseChange}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                    errors.course
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Select a course</option>
+                  {courses.length > 0 &&
+                    courses.map((course) => (
+                      <option key={course._id} value={course._id}>
+                        {course.course_name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              {errors.course && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.course}
+                </p>
+              )}
+            </div>
+
+            {/* Batch */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="batch"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <Users className="w-5 h-5 mr-2 text-blue-600" />
+                Batch <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  id="batch"
+                  name="batch"
+                  value={formData.batch}
+                  onChange={changeHandler}
+                  disabled={!formData.course}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                    !formData.course
+                      ? "border-gray-200 bg-gray-50 cursor-not-allowed"
+                      : errors.batch
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Select a batch</option>
+                  {batches.length > 0 &&
+                    batches.map((batch) => (
+                      <option key={batch._id} value={batch._id}>
+                        {batch.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              {errors.batch && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.batch}
+                </p>
+              )}
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="subject"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <Layers className="w-5 h-5 mr-2 text-blue-600" />
+                Subject <span className="text-red-500 ml-1">*</span>
+              </label>
+              <div className="relative">
+                <Layers className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={changeHandler}
+                  disabled={!formData.batch}
+                  className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                    !formData.batch
+                      ? "border-gray-200 bg-gray-50 cursor-not-allowed"
+                      : errors.subject
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                      : "border-gray-300"
+                  }`}
+                >
+                  <option value="">Select a subject</option>
+                  {subjects.length > 0 &&
+                    subjects.map((subject) => (
+                      <option key={subject._id} value={subject._id}>
+                        {subject.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              {errors.subject && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.subject}
+                </p>
+              )}
+            </div>
+
+            {/* Total Marks */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="total_marks"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <Hash className="w-5 h-5 mr-2 text-blue-600" />
+                Total Marks <span className="text-red-500 ml-1">*</span>
+              </label>
+              <input
+                type="number"
+                id="total_marks"
+                name="total_marks"
+                min="0"
+                placeholder="e.g., 100"
+                value={formData.total_marks}
                 onChange={changeHandler}
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.batch
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-              >
-                <option value="">Select any batch</option>
-                {batches.length > 0 &&
-                  batches.map((batch) => (
-                    <option key={batch._id} value={batch._id}>
-                      {batch.name}
-                    </option>
-                  ))}
-              </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <Layers className="w-4 h-4 text-gray-300" />
-              </div>
-            </div>
-
-            {errors.batch && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.batch}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Subject selection (depends on selected course) */}
-          <div className="space-y-2">
-            <label
-              className="flex items-center text-sm font-semibold text-gray-700"
-              htmlFor="subject"
-            >
-              <ListChecks className="w-4 h-4 mr-2 text-blue-500" />
-              Subject <span className="text-red-500 ml-1">*</span>
-            </label>
-            <div className="relative">
-              <select
-                id="subject"
-                name="subject"
-                required
-                value={formData.subject}
-                onChange={changeHandler}
-                className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white appearance-none hover:border-gray-300
-                ${
-                  errors.subject
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-              >
-                <option value="">Select any subject</option>
-                {subjects.length > 0 &&
-                  subjects.map((subject) => (
-                    <option key={subject._id} value={subject._id}>
-                      {subject.name}
-                    </option>
-                  ))}
-              </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <ListChecks className="w-4 h-4 text-gray-300" />
-              </div>
-            </div>
-            {errors.subject && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.subject}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Total Marks */}
-          <div className="space-y-2">
-            <label
-              htmlFor="total_marks"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <Hash className="w-4 h-4 mr-2 text-orange-500" />
-              Total Marks <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              id="total_marks"
-              name="total_marks"
-              required
-              placeholder="e.g., 100"
-              ref={marksRef}
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
+                ref={marksRef}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                   errors.total_marks
                     ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
+                    : "border-gray-300"
+                }`}
+              />
+              {errors.total_marks && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.total_marks}
+                </p>
+              )}
+            </div>
 
-            {errors.total_marks && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.total_marks}</span>
-              </div>
-            )}
-          </div>
-
-          {/* Duration */}
-          <div className="space-y-2">
-            <label
-              htmlFor="duration"
-              className="flex items-center text-sm font-semibold text-gray-700"
-            >
-              <Timer className="w-4 h-4 mr-2 text-blue-500" />
-              Duration (minutes) <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              id="duration"
-              name="duration"
-              required
-              ref={durationRef}
-              placeholder="e.g., 120"
-              onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
+            {/* Duration */}
+            <div className="space-y-2 relative">
+              <label
+                htmlFor="duration"
+                className="block text-sm font-medium text-gray-700 flex items-center"
+              >
+                <Timer className="w-5 h-5 mr-2 text-blue-600" />
+                Duration (minutes) <span className="text-red-500 ml-1">*</span>
+              </label>
+              <input
+                type="number"
+                id="duration"
+                name="duration"
+                min="0"
+                placeholder="e.g., 120"
+                value={formData.duration}
+                onChange={changeHandler}
+                ref={durationRef}
+                className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
                   errors.duration
                     ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
-            />
-
-            {errors.duration && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.duration}</span>
-              </div>
-            )}
+                    : "border-gray-300"
+                }`}
+              />
+              {errors.duration && (
+                <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                  <AlertCircle className="w-4 h-4" />
+                  {errors.duration}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Exam Date */}
-          <div className="space-y-2">
+          {/* Exam date (full width) */}
+          <div className="space-y-2 relative">
             <label
               htmlFor="exam_date"
-              className="flex items-center text-sm font-semibold text-gray-700"
+              className="block text-sm font-medium text-gray-700 flex items-center"
             >
-              <Calendar className="w-4 h-4 mr-2 text-green-600" />
+              <Calendar className="w-5 h-5 mr-2 text-blue-600" />
               Exam Date <span className="text-red-500 ml-1">*</span>
             </label>
             <input
               type="datetime-local"
               id="exam_date"
               name="exam_date"
-              required
               value={formData.exam_date}
               onChange={changeHandler}
-              className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 outline-none bg-white hover:border-gray-300
-                ${
-                  errors.exam_date
-                    ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                    : "border-gray-200 focus:border-purple-500 focus:ring-purple-200"
-                } focus:ring-4 focus:ring-opacity-20`}
+              className={`w-full pl-10 pr-4 py-3 border rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${
+                errors.exam_date
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : "border-gray-300"
+              }`}
             />
-
             {errors.exam_date && (
-              <div className="flex items-center text-red-600 text-sm mt-1 animate-fade-in">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                <span>{errors.exam_date}</span>
-              </div>
+              <p className="flex items-center gap-1 mt-1 text-sm text-red-600">
+                <AlertCircle className="w-4 h-4" />
+                {errors.exam_date}
+              </p>
             )}
           </div>
 
-          {/* Submit */}
-          <div className="pt-6 border-t border-gray-200">
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 focus:ring-4 focus:ring-purple-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-            >
-              <ScrollText className="w-5 h-5" />
-              <span>
-                {required_path === "update" ? "Update" : "Create "} Exam
-              </span>
-            </button>
-          </div>
+          {/* Submit Button (full width) */}
+          <button
+            type="submit"
+            className="flex items-center gap-2 justify-center w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-6"
+          >
+            <ScrollText className="w-5 h-5" />
+            {required_path === "update" ? "Update" : "Create"} Exam
+          </button>
         </form>
       </div>
     </div>

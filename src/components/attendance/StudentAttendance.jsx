@@ -2,7 +2,18 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAttendance } from "../../redux/slices/attendanceSlice";
 import { getStudent } from "../../redux/slices/studentsSlice";
-import { Calendar, User, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Calendar,
+  User,
+  CheckCircle2,
+  XCircle,
+  GraduationCap,
+  CalendarDays,
+  TrendingUp,
+  Clock,
+  BookOpen,
+  AlertCircle,
+} from "lucide-react";
 
 const months = [
   { month: "January", number: 1 },
@@ -22,15 +33,14 @@ const months = [
 const StudentAttendance = () => {
   const attendance = useSelector((state) => state.attendance.attendance || []);
   const student = useSelector((state) => state.student.student);
+  const loading = useSelector((state) => state.attendance.loading);
   const dispatch = useDispatch();
-  const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({ year: "", month: "" });
+  const [years, setYears] = useState([]);
 
-  // Compute years based on admission
-  let years = [];
+  // Compute years based on admission date
   useEffect(() => {
     dispatch(getStudent());
-    // eslint-disable-next-line
   }, [dispatch]);
 
   useEffect(() => {
@@ -39,179 +49,341 @@ const StudentAttendance = () => {
       const admission_year = admission_date.getFullYear();
       const current_year = new Date().getFullYear();
       const diff = current_year - admission_year;
+
       if (diff > 0) {
-        years = [];
-        for (let i = 0; i <= diff; i++) {
-          years.push(admission_year + i);
-        }
+        const calculatedYears = Array.from(
+          { length: diff + 1 },
+          (_, i) => admission_year + i
+        );
+        setYears(calculatedYears);
       } else {
-        years = [admission_year];
-        if (!formData.year) {
-          setFormData((prev) => ({ ...prev, year: admission_year }));
-        }
+        setYears([admission_year]);
+      }
+      if (!formData.year) {
+        setFormData((prev) => ({ ...prev, year: admission_year }));
       }
     }
-    // eslint-disable-next-line
   }, [student]);
 
-  if (student) {
-    const admission_date = new Date(student.createdAt);
-    const admission_year = admission_date.getFullYear();
-    const current_year = new Date().getFullYear();
-    const diff = current_year - admission_year;
-    years =
-      diff > 0
-        ? Array.from({ length: diff + 1 }, (_, i) => admission_year + i)
-        : [admission_year];
-  }
+  // Fetch attendance when year and month are selected
+  useEffect(() => {
+    if (formData.year && formData.month) {
+      dispatch(getAttendance({ year: formData.year, month: formData.month }));
+    }
+  }, [formData.year, formData.month, dispatch]);
 
-  // Handlers
   const changeHandler = (e) => {
     const { name, value } = e.target;
-    setSubmitted(false);
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "year") {
+      setFormData({ year: value, month: "" });
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const submitHandler = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    const { year, month } = formData;
-    if (!year || !month) return;
-    dispatch(getAttendance({ year, month }));
-  };
+  const attendanceStats =
+    attendance.length > 0
+      ? {
+          total: attendance.length,
+          present: attendance.filter((item) => item.status === "present")
+            .length,
+          absent: attendance.filter((item) => item.status === "absent").length,
+          percentage: Math.round(
+            (attendance.filter((item) => item.status === "present").length /
+              attendance.length) *
+              100
+          ),
+        }
+      : null;
 
-  console.log(formData, submitted, attendance);
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4">
-      {/* Student Details */}
-      {student && (
-        <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-white shadow border border-gray-100">
-          <User className="w-10 h-10 text-blue-600 bg-blue-50 rounded-full p-1" />
-          <div>
-            <div className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              {student.full_name}
-            </div>
-            <div className="text-gray-500 text-sm">
-              Admission Year: {new Date(student.createdAt).getFullYear()}
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-blue-100 p-3 rounded-full">
+              <CalendarDays className="w-8 h-8 text-blue-600" />
             </div>
           </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            My Attendance
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Track your daily attendance records and monitor your academic
+            progress
+          </p>
         </div>
-      )}
 
-      {/* Form */}
-      <form
-        onSubmit={submitHandler}
-        className="bg-white border border-gray-100 rounded-2xl shadow-md p-6 space-y-4 mb-8"
-      >
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-          <div className="flex-1">
-            <label
-              className="block text-sm font-semibold text-gray-700 mb-1"
-              htmlFor="year"
-            >
-              Year
-            </label>
-            <select
-              name="year"
-              id="year"
-              value={formData.year}
-              onChange={changeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            >
-              <option value="">Select year</option>
-              {years.map((year, i) => (
-                <option key={i} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex-1">
-            <label
-              className="block text-sm font-semibold text-gray-700 mb-1"
-              htmlFor="month"
-            >
-              Month
-            </label>
-            <select
-              name="month"
-              id="month"
-              value={formData.month}
-              onChange={changeHandler}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            >
-              <option value="">Select month</option>
-              {months.map((month) => (
-                <option key={month.number} value={month.number}>
-                  {month.month}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <button
-          type="submit"
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg shadow-sm transition-all focus:ring-2 focus:ring-blue-400 focus:ring-offset-1 text-sm"
-        >
-          <Calendar className="w-5 h-5" />
-          Get Attendance
-        </button>
-      </form>
-
-      {/* Attendance Results */}
-      <div>
-        {formData.year && formData.month && submitted ? (
-          attendance && attendance.length > 0 ? (
-            <div className="bg-white border border-gray-100 rounded-xl shadow p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-800">
-                Attendance for{" "}
-                {
-                  months.find((m) => m.number === parseInt(formData.month))
-                    ?.month
-                }
-                , {formData.year}
-              </h3>
-              <ol className="space-y-3">
-                {attendance.map((item, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-center gap-4 border-b last:border-b-0 py-3"
-                  >
-                    <div className="flex-1 flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-800 font-medium">
-                        {new Date(item.date).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
+        <div className="space-y-8">
+          {/* Student Profile */}
+          {student && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="w-8 h-8 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {student.full_name}
+                  </h2>
+                  <p className="text-gray-600 mb-2">Student ID: {student.id}</p>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <div className="flex items-center">
+                      <GraduationCap className="w-4 h-4 mr-1" />
+                      Admission Year:{" "}
+                      {new Date(student.createdAt).getFullYear()}
                     </div>
-                    {item.status === "present" ? (
-                      <span className="inline-flex items-center gap-1 text-green-700 bg-green-50 px-3 py-1 rounded-full font-semibold text-xs">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Present
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-red-700 bg-red-50 px-3 py-1 rounded-full font-semibold text-xs">
-                        <XCircle className="w-4 h-4" />
-                        Absent
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="text-center bg-white py-8 border border-gray-100 rounded-xl shadow text-gray-500 font-medium">
-              No attendance is marked yet for this period.
+          )}
+
+          {/* Filter Section */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+              <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+              Select Period
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Year Select */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="year"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Academic Year <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <GraduationCap className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <select
+                    id="year"
+                    name="year"
+                    value={formData.year}
+                    onChange={changeHandler}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                  >
+                    <option value="">Select academic year</option>
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Month Select */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="month"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Month <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <select
+                    id="month"
+                    name="month"
+                    value={formData.month}
+                    onChange={changeHandler}
+                    disabled={!formData.year}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="">Select month</option>
+                    {months.map((month) => (
+                      <option key={month.number} value={month.number}>
+                        {month.month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
-          )
-        ) : (
-          <div className="text-center text-gray-500 font-medium py-8">
-            Select month and year to get the attendance.
           </div>
-        )}
+
+          {/* Attendance Statistics */}
+          {attendanceStats && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Total Days</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {attendanceStats.total}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-gray-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Present</p>
+                    <p className="text-2xl font-bold text-green-600">
+                      {attendanceStats.present}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Absent</p>
+                    <p className="text-2xl font-bold text-red-600">
+                      {attendanceStats.absent}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <XCircle className="w-6 h-6 text-red-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Attendance Rate
+                    </p>
+                    <p
+                      className={`text-2xl font-bold ${
+                        attendanceStats.percentage >= 75
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {attendanceStats.percentage}%
+                    </p>
+                  </div>
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      attendanceStats.percentage >= 75
+                        ? "bg-green-100"
+                        : "bg-red-100"
+                    }`}
+                  >
+                    <TrendingUp
+                      className={`w-6 h-6 ${
+                        attendanceStats.percentage >= 75
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Attendance Records */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+                {formData.year && formData.month
+                  ? `Attendance Records - ${
+                      months.find((m) => m.number === parseInt(formData.month))
+                        ?.month
+                    } ${formData.year}`
+                  : "Attendance Records"}
+              </h2>
+            </div>
+
+            <div className="p-6">
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <p className="text-gray-600 font-medium">
+                    Loading attendance records...
+                  </p>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Please wait while we fetch your data
+                  </p>
+                </div>
+              ) : !formData.year || !formData.month ? (
+                <div className="text-center py-12">
+                  <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium mb-2">
+                    Select Period to View Records
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    Choose both academic year and month from the filters above
+                    to view your attendance
+                  </p>
+                </div>
+              ) : attendance.length > 0 ? (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {attendance.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm font-medium text-blue-600">
+                          {new Date(item.date).getDate()}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {new Date(item.date).toLocaleDateString(undefined, {
+                              weekday: "long",
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
+                          <div className="flex items-center text-sm text-gray-500 mt-1">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {new Date(item.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center">
+                        {item.status === "present" ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                            Present
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Absent
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium mb-2">
+                    No Records Found
+                  </p>
+                  <p className="text-gray-400 text-sm">
+                    No attendance has been marked for{" "}
+                    {
+                      months.find((m) => m.number === parseInt(formData.month))
+                        ?.month
+                    }{" "}
+                    {formData.year}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

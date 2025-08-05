@@ -17,7 +17,7 @@ import Installment from "./Installment";
 import { useSelector } from "react-redux";
 import Loading from "../Loading";
 
-const EnrollmentForm = ({ enquiry_id, courses, isLoading }) => {
+const EnrollmentForm = ({ enquiry_id, courses, isLoading, fname, lname }) => {
   const validate = (input_name, value, formData) => {
     let error;
 
@@ -64,6 +64,7 @@ const EnrollmentForm = ({ enquiry_id, courses, isLoading }) => {
 
     return error || "";
   };
+
   //   here the formData  of the course is having complete object of the course.
   const [formData, changeHandler, submitHandler, errors, setFormData] = useForm(
     {
@@ -79,6 +80,8 @@ const EnrollmentForm = ({ enquiry_id, courses, isLoading }) => {
       installment_info: [],
       email: "",
       password: "",
+      fname: fname,
+      lname: lname,
     },
     createEnrollment,
     validate,

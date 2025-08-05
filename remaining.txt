@@ -7,4 +7,12 @@
 
 
  Remaining work to be done  from  beginning.
- 
+ 1. Enquiry section for admin,  have to  create the dashboard for the same. (make changes in the  socket in login too.)
+ 2. Whether the enquiry is online or offline needs to be told.
+ 3. Realtime enquiry issue  when receptionist  creates an Enquiry.
+ 4. online enquiries are going to /dashbaord/enquiries. (its an issue)
+ 5. Enrollment section needs  to be tested correctly.
+ 6. Exam and Mocks  should be  given to student,  instructor  and operation executive only.4
+ 7. Batch Allocation to operation executive only.
+ 8. Admin should have main things like  dashboard and all,  thats all.
+ 9. Batch, staff , Exam and Mocks  to operation executive only.

@@ -32,7 +32,6 @@ const ExamFilter = ({
     if (mocks?.length > 0) {
       dispatch(clear_mock());
     }
-    //  get subjects also
     if (courseId) {
       dispatch(getAllBatches({ course_id: courseId }));
       dispatch(getSubjects({ course_id: courseId }));
@@ -54,29 +53,31 @@ const ExamFilter = ({
   };
 
   if (isLoading || is_loading) {
-    return <Loading></Loading>;
+    return <Loading />;
   }
 
   return (
-    <form className="bg-white/80 backdrop-blur-sm shadow-xl rounded-2xl border border-gray-100 p-6 mb-8 flex flex-col md:flex-row gap-6 md:items-center">
-      <div className="flex-1 space-y-1">
+    <form className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Course Select */}
+      <div className="space-y-2 relative">
         <label
           htmlFor="course"
-          className="flex items-center font-semibold text-gray-700 text-sm mb-1"
+          className="block text-sm font-medium text-gray-700 flex items-center"
         >
-          <BookOpen className="w-4 h-4 mr-2 text-blue-500" />
-          {required_path === "exams" ? "Exam" : "Course"}
+          <BookOpen className="w-5 h-5 mr-2 text-blue-600" />
+          {required_path === "exams" ? "Exam" : "Course"}{" "}
+          <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
+          <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <select
             name="course"
             id="course"
             value={selectedCourse}
             onChange={get_batches}
-            className="w-full px-4 py-3 border-2 rounded-xl
-                  border-gray-200 focus:border-purple-500 focus:ring-purple-200 focus:ring-4 focus:ring-opacity-20 outline-none bg-white transition-all duration-200 appearance-none hover:border-gray-300"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors hover:border-gray-400"
           >
-            <option value="">Select any course</option>
+            <option value="">Select a course</option>
             {courses.length > 0 &&
               courses.map((course) => (
                 <option key={course._id} value={course._id}>
@@ -84,19 +85,20 @@ const ExamFilter = ({
                 </option>
               ))}
           </select>
-          <BookOpen className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
         </div>
       </div>
 
-      <div className="flex-1 space-y-1">
+      {/* Batch Select */}
+      <div className="space-y-2 relative">
         <label
           htmlFor="batch"
-          className="flex items-center font-semibold text-gray-700 text-sm mb-1"
+          className="block text-sm font-medium text-gray-700 flex items-center"
         >
-          <Layers className="w-4 h-4 mr-2 text-purple-600" />
-          Batch
+          <Layers className="w-5 h-5 mr-2 text-blue-600" />
+          Batch <span className="text-red-500 ml-1">*</span>
         </label>
         <div className="relative">
+          <Layers className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
           <select
             name="batch"
             id="batch"
@@ -108,10 +110,9 @@ const ExamFilter = ({
                 get_mocks(event);
               }
             }}
-            className="w-full px-4 py-3 border-2 rounded-xl
-                  border-gray-200 focus:border-purple-500 focus:ring-purple-200 focus:ring-4 focus:ring-opacity-20 outline-none bg-white transition-all duration-200 appearance-none hover:border-gray-300"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors hover:border-gray-400"
           >
-            <option value="">Select any batch</option>
+            <option value="">Select a batch</option>
             {batches.length > 0 &&
               batches.map((batch) => (
                 <option key={batch._id} value={batch._id}>
@@ -119,7 +120,6 @@ const ExamFilter = ({
                 </option>
               ))}
           </select>
-          <Layers className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 pointer-events-none" />
         </div>
       </div>
     </form>
