@@ -13,6 +13,10 @@ import StudentAttendance from "./components/attendance/StudentAttendance";
 import PaymentInfo from "./components/payment/PaymentInfo";
 import MockMarks from "./components/mocks/MockMarks";
 import AddMarks from "./components/mocks/AddMarks";
+import CreateAssignment from "./components/assignments/CreateAssignment";
+import Assignments from "./components/assignments/Assignments";
+import AssignmentFilter from "./components/assignments/AssignmentFilter";
+import Performance from "./components/peformance/Performance";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -50,11 +54,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Index></Index>}></Route>
         <Route path="/login" element={<Login></Login>}></Route>
-        <Route path="/login/student" element={<Login></Login>}></Route>
-
-        {/* open  route to take the online enquiry */}
         <Route
-          path="enquiry/add"
+          path="enquiry/add" //online enquiry.
           element={<CreateEnquiry></CreateEnquiry>}
         ></Route>
         {/* protected routes */}
@@ -70,8 +71,15 @@ function App() {
           <Route
             path="courses"
             element={
+              // as of now this is an authenticated route. we will open it also.
               <ProtectedRoute
-                allowedRoles={["admin", "counsellor", "operations_executive"]}
+                allowedRoles={[
+                  "admin",
+                  "instructor",
+                  "counsellor",
+                  "operations_executive",
+                  "receptionist",
+                ]}
               >
                 <Courses></Courses>
               </ProtectedRoute>
@@ -98,7 +106,12 @@ function App() {
             path="batches"
             element={
               <ProtectedRoute
-                allowedRoles={["admin", "operations_executive", "counsellor"]}
+                allowedRoles={[
+                  "admin",
+                  "operations_executive",
+                  "counsellor",
+                  "instructor",
+                ]}
               >
                 <Batches></Batches>
               </ProtectedRoute>
@@ -116,7 +129,7 @@ function App() {
           <Route
             path="employees/add"
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
                 <CreateEmployee></CreateEmployee>
               </ProtectedRoute>
             }
@@ -133,7 +146,7 @@ function App() {
           <Route
             path="employees/:id/update"
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
                 <CreateEmployee></CreateEmployee>
               </ProtectedRoute>
             }
@@ -142,6 +155,7 @@ function App() {
           <Route
             path="enquiries/add"
             element={
+              // in person enquiries.
               <ProtectedRoute allowedRoles={["receptionist", "counsellor"]}>
                 <CreateEnquiry></CreateEnquiry>
               </ProtectedRoute>
@@ -254,7 +268,9 @@ function App() {
           <Route
             path="exams/add"
             element={
-              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
                 <CreateExam></CreateExam>
               </ProtectedRoute>
             }
@@ -270,6 +286,7 @@ function App() {
           <Route
             path="exams"
             element={
+              // showing all exams, kinda filtration.
               <ProtectedRoute
                 allowedRoles={["admin", "operations_executive", "instructor"]}
               >
@@ -281,7 +298,9 @@ function App() {
           <Route
             path="exams/:id/questions"
             element={
-              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
                 <Questions></Questions>
               </ProtectedRoute>
             }
@@ -289,7 +308,9 @@ function App() {
           <Route
             path="exams/:id/questions/update"
             element={
-              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
                 <CreateQuestion></CreateQuestion>
               </ProtectedRoute>
             }
@@ -298,7 +319,9 @@ function App() {
           <Route
             path="mocks/add"
             element={
-              <ProtectedRoute allowedRoles={["admin", "operations_executive"]}>
+              <ProtectedRoute
+                allowedRoles={["admin", "operations_executive", "instructor"]}
+              >
                 <CreateMock></CreateMock>
               </ProtectedRoute>
             }
@@ -339,10 +362,10 @@ function App() {
             }
           ></Route>
           {/* attendance */}
-          {/* Take attendance  */}
           <Route
             path="attendance"
             element={
+              // capture attendance
               <ProtectedRoute
                 allowedRoles={["operations_executive", "instructor"]}
               >
@@ -350,31 +373,21 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          {/* Show Attendance */}
           <Route
             path="attendance/student"
             element={
+              // show attendance for student.
               <ProtectedRoute allowedRoles={["student"]}>
                 <StudentAttendance></StudentAttendance>
               </ProtectedRoute>
             }
           ></Route>
           {/*  course enrollment */}
-          {/* show enrolled course */}
           <Route
             path="courses/enrolled"
             element={
               <ProtectedRoute allowedRoles={["student"]}>
                 <ParticularCourse></ParticularCourse>
-              </ProtectedRoute>
-            }
-          ></Route>
-          {/* payment section */}
-          <Route
-            path="student/payment-info"
-            element={
-              <ProtectedRoute allowedRoles={["student"]}>
-                <PaymentInfo></PaymentInfo>
               </ProtectedRoute>
             }
           ></Route>
@@ -392,6 +405,65 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["instructor"]}>
                 <AddMarks></AddMarks>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*  asignment routes  */}
+          <Route
+            path="assignments/add"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <CreateAssignment></CreateAssignment>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="instructor/assignments"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <AssignmentFilter></AssignmentFilter>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="assignments"
+            element={
+              <ProtectedRoute allowedRoles={"student"}>
+                <Assignments></Assignments>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* notes section */}
+          <Route
+            path="notes/add"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <CreateAssignment></CreateAssignment>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="instructor/notes"
+            element={
+              <ProtectedRoute allowedRoles={"instructor"}>
+                <AssignmentFilter></AssignmentFilter>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="notes"
+            element={
+              <ProtectedRoute allowedRoles={"student"}>
+                <Assignments></Assignments>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* performance route */}
+          <Route
+            path="student/performance"
+            element={
+              <ProtectedRoute allowedRoles={"student"}>
+                <Performance></Performance>
               </ProtectedRoute>
             }
           ></Route>

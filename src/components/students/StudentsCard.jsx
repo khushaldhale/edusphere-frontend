@@ -22,7 +22,7 @@ const StudentsCard = ({ student, idx, course }) => {
         {student?.student_img ? (
           <img
             src={student?.student_img}
-            alt={student?.full_name}
+            alt={student?.fname + student?.lname}
             className="w-28 h-28 object-cover rounded-full border-4 border-purple-300 shadow-md"
           />
         ) : (
@@ -33,7 +33,7 @@ const StudentsCard = ({ student, idx, course }) => {
 
         <div>
           <div className="text-xl font-bold text-gray-900">
-            {student?.full_name}
+            {student?.fname + " " + student?.lname}
           </div>
           <div className="text-sm text-gray-600">
             {course?.course_name || "—"}

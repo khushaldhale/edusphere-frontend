@@ -32,7 +32,7 @@ const AddBatch = () => {
           {data.student_img ? (
             <img
               src={data.student_img}
-              alt={data.full_name}
+              alt={data.fname + data.lname}
               className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full border-4 border-purple-300 shadow"
             />
           ) : (
@@ -43,7 +43,7 @@ const AddBatch = () => {
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
               <User className="w-6 h-6 text-purple-600" />
-              {data.full_name}
+              {data.fname + " " + data.lname}
             </h2>
             <div className="flex flex-wrap items-center gap-4 mt-3 text-gray-700">
               <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2">

@@ -93,6 +93,12 @@ export const subjectSlice = createSlice(
 	{
 		name: "subject",
 		initialState,
+		reducers: {
+			addSubjects: (state, action) => {
+				console.log("action:, ", action.payload)
+				state.subjects = action.payload;
+			}
+		},
 		extraReducers: (builder) => {
 			builder.addCase(createSubject.pending, (state) => {
 				state.isLoading = true;
@@ -170,4 +176,6 @@ export const subjectSlice = createSlice(
 		}
 	}
 )
+
+export const { addSubjects } = subjectSlice.actions
 export default subjectSlice.reducer; 

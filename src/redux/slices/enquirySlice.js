@@ -4,6 +4,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const createEnquiry = createAsyncThunk("createEnquiry", async (data, { rejectWithValue }) => {
 	try {
+
 		const address = {
 			house_number: data.house_number,
 			area: data.area,

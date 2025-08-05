@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 
 
-
 export const createMockResult = createAsyncThunk("createMockResult", async (data, { rejectWithValue }) => {
 	try {
 		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/mock/results`, {

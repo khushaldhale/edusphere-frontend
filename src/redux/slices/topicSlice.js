@@ -89,6 +89,11 @@ const initialState = {
 export const topicSlice = createSlice({
 	name: 'topic',
 	initialState,
+	reducers: {
+		addTopics: (state, action) => {
+			state.topics = action.payload;
+		}
+	},
 	extraReducers: (builder) => {
 
 		builder.addCase(getTopics.pending, (state) => {
@@ -161,10 +166,9 @@ export const topicSlice = createSlice({
 				state.isError = true;
 				state.isLoading = false;
 			})
-
-
-
 	}
 })
+
+export const { addTopics } = topicSlice.actions;
 
 export default topicSlice.reducer

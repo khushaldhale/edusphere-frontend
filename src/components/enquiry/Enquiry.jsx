@@ -98,7 +98,7 @@ const Enquiry = () => {
         <div className="bg-white/80 backdrop-blur-sm shadow-lg rounded-xl p-6 border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <h2 className="text-3xl font-bold text-gray-900 flex items-center">
             <User className="inline-block w-7 h-7 mr-3 text-blue-600" />
-            {enquiry.full_name}
+            {enquiry.fname + " " + enquiry.lname}
           </h2>
           <span
             className={`px-4 py-2 rounded-full text-sm font-semibold border ${getStatusColor(
@@ -350,8 +350,10 @@ const Enquiry = () => {
           <div className="mt-8">
             <EnrollmentForm
               courses={courses}
-              enquiry_id={enquiry._id}
+              enquiry_id={enquiry?._id}
               isLoading={isLoading}
+              fname={enquiry.fname}
+              lname={enquiry.lname}
             ></EnrollmentForm>
           </div>
         )}
