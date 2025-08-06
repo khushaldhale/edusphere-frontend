@@ -18,12 +18,9 @@ const StudentExams = () => {
   const student_id = useParams().id;
   const exams = useSelector((state) => state.exam.exams_students || []);
   const dispatch = useDispatch();
-  const subjects = useSelector((state) => {
-    return state.subject.subjects;
-  });
+  const subjects = useSelector((state) => state.subject.subjects);
   const navigate = useNavigate();
 
-  // We'll use one ticking state to trigger re-render for every second (for ALL exams).
   const [, setTick] = useState(0);
   useEffect(() => {
     dispatch(examsViaStudent({ student_id }));
@@ -48,24 +45,25 @@ const StudentExams = () => {
           const examStartPlus5 = new Date(examDate.getTime() + 5 * 60000);
           const examEnd = new Date(examDate.getTime() + exam.duration * 60000);
 
-          // Calculate timers
+          // Timer calculations
           const secondsUntilStart = Math.floor(
             (examDate - current_date) / 1000
           );
 
-          // Logic
-          const showUpcoming = current_date < examDate;
+          // Window flags
+          const isBeforeStart = current_date < examDate;
+          const isInFirst5Minutes =
+            current_date >= examDate && current_date < examStartPlus5;
+          const isAfter5Minutes =
+            current_date >= examStartPlus5 && current_date <= examEnd;
+          const isDuringExam =
+            current_date >= examDate && current_date <= examEnd;
+          const isAfterEnd = current_date > examEnd;
 
+          // For upcoming countdown
+          const showUpcoming = isBeforeStart;
           const showCountdown =
             showUpcoming && secondsUntilStart <= 900 && secondsUntilStart > 0;
-
-          const showStartExam =
-            current_date >= examDate && current_date < examStartPlus5;
-
-          const showOngoing =
-            current_date >= examStartPlus5 && current_date <= examEnd;
-
-          const showConducted = current_date > examEnd;
 
           return (
             <div
@@ -90,15 +88,10 @@ const StudentExams = () => {
                   minute: "2-digit",
                 })}
               </p>
-
               <p className="text-gray-700 mb-4">
                 <strong>Subject:</strong>{" "}
                 {subjects.length > 0 &&
-                  subjects.find((sub) => {
-                    if (sub._id === exam.subject) {
-                      return true;
-                    }
-                  }).name}
+                  subjects.find((sub) => sub._id === exam.subject)?.name}
               </p>
 
               {/* UPCOMING */}
@@ -120,44 +113,49 @@ const StudentExams = () => {
                 </>
               )}
 
-              {/* START EXAM */}
-              {showStartExam && (
-                <button
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
-                  aria-label="Start Exam"
-                  onClick={() => {
-                    dispatch(createExamAttempt({ exam_id: exam._id })).then(
-                      (action) => {
-                        if (action.payload.success) {
-                          toast.success(action.payload.message);
-                          navigate(`/dashboard/exams/${exam._id}/conduct`, {
-                            state: {
-                              duration: exam.duration,
-                              exam_date: exam.exam_date,
-                            },
-                          });
-                        } else {
-                          toast.error(action.payload.message);
+              {/* EXAM ACTIVE: Start/Reattempt button (enabled) + Ongoing marker */}
+              {isDuringExam && (
+                <div className="flex items-center gap-4">
+                  <button
+                    className={`flex items-center gap-2 ${
+                      isInFirst5Minutes
+                        ? "bg-green-600 hover:bg-green-700"
+                        : "bg-purple-600 hover:bg-purple-700"
+                    } text-white px-4 py-2 rounded-md font-medium`}
+                    aria-label={
+                      isInFirst5Minutes ? "Start Exam" : "Reattempt Exam"
+                    }
+                    onClick={() => {
+                      dispatch(createExamAttempt({ exam_id: exam._id })).then(
+                        (action) => {
+                          if (action.payload.success) {
+                            toast.success(action.payload.message);
+                            navigate(`/dashboard/exams/${exam._id}/conduct`, {
+                              state: {
+                                duration: exam.duration,
+                                exam_date: exam.exam_date,
+                              },
+                            });
+                          } else {
+                            toast.error(action.payload.message);
+                          }
                         }
-                      }
-                    );
-                  }}
-                >
-                  <Play className="w-5 h-5" />
-                  Start Exam
-                </button>
-              )}
-
-              {/* ONGOING */}
-              {showOngoing && (
-                <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md font-medium w-max">
-                  <Clock className="w-5 h-5" />
-                  Exam Ongoing
+                      );
+                    }}
+                  >
+                    <Play className="w-5 h-5" />
+                    {isInFirst5Minutes ? "Start Exam" : "Reattempt Exam"}
+                  </button>
+                  {/* Ongoing marker */}
+                  <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-md font-medium w-max">
+                    <Clock className="w-5 h-5" />
+                    Exam Ongoing
+                  </div>
                 </div>
               )}
 
               {/* CONDUCTED */}
-              {showConducted && (
+              {isAfterEnd && (
                 <button
                   className="flex items-center gap-2 bg-gray-400 text-white px-4 py-2 rounded-md font-medium cursor-not-allowed"
                   aria-label="Exam Conducted"

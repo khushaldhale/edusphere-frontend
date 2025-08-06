@@ -1,7 +1,19 @@
 import { useDispatch, useSelector } from "react-redux";
-import { ScrollText, ListChecks, Hash, Timer, Calendar } from "lucide-react";
+import {
+  ScrollText,
+  ListChecks,
+  Hash,
+  Timer,
+  Clock,
+  Calendar,
+  CheckCircle,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { clear_exams, deleteExam } from "../../redux/slices/examSlice";
+import {
+  clear_exams,
+  deleteExam,
+  publishExam,
+} from "../../redux/slices/examSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import ExamFilter from "./ExamFilter";
@@ -19,6 +31,17 @@ const Exams = () => {
     return state.subject.subjects;
   });
   const isLoading = useSelector((state) => state.exam.isLoading);
+  const publish_exam = (exam_id) => {
+    dispatch(publishExam({ exam_id })).then((action) => {
+      if (action.payload.success) {
+        toast.success(action.payload.message);
+      } else {
+        toast.error(action.payload.message);
+      }
+    });
+  };
+
+  console.log("exams : ", exams);
 
   useEffect(() => {
     dispatch(clear_exams());
@@ -91,20 +114,50 @@ const Exams = () => {
                 {/* Action Buttons */}
                 <div className="mt-auto pt-4 border-t border-gray-100">
                   {/* Add Questions Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      navigate(`/dashboard/exams/${exam._id}/questions`, {
-                        state: { exam_id: exam._id },
-                      });
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-lg transition-shadow shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm mb-4"
-                    aria-label="Add Questions"
-                  >
-                    <Eye className="w-5 h-5" />
-                    Add Questions
-                  </motion.button>
+                  <div className="mt-auto pt-4 border-t border-gray-100">
+                    {/* Add Questions Button */}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        navigate(`/dashboard/exams/${exam._id}/questions`, {
+                          state: { exam_id: exam._id },
+                        });
+                      }}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-lg transition-shadow shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm mb-4"
+                      aria-label="Add Questions"
+                    >
+                      <ListChecks className="w-5 h-5" />
+                      Add Questions
+                    </motion.button>
+
+                    {/* Publish Button */}
+                    <motion.button
+                      whileHover={{ scale: exam.is_published ? 1 : 1.05 }}
+                      whileTap={{ scale: exam.is_published ? 1 : 0.95 }}
+                      onClick={() => {
+                        if (!exam.is_published) {
+                          publish_exam(exam._id);
+                        }
+                      }}
+                      disabled={exam.is_published}
+                      className={`w-full font-semibold py-3 px-5 rounded-lg transition-shadow shadow-md flex items-center justify-center gap-2 text-sm mb-4 ${
+                        exam.is_published
+                          ? "bg-green-600 text-white cursor-not-allowed"
+                          : "bg-yellow-500 hover:bg-yellow-600 text-white cursor-pointer"
+                      }`}
+                      aria-label={
+                        exam.is_published ? "Published" : "Publish Exam"
+                      }
+                    >
+                      {exam.is_published ? (
+                        <CheckCircle className="w-5 h-5 text-white" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-white" />
+                      )}
+                      <span>{exam.is_published ? "Published" : "Publish"}</span>
+                    </motion.button>
+                  </div>
 
                   {/* Update & Delete Buttons */}
                   <div className="flex gap-3">

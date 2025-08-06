@@ -11,49 +11,59 @@ import { useLocation, useNavigate } from "react-router-dom";
 const StudentsCard = ({ student, idx, course }) => {
   const navigate = useNavigate();
   const required_path = useLocation().pathname.split("/").at(-1);
+
   return (
     <div
       key={student?._id || idx}
-      className="flex flex-col bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6"
+      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col"
     >
-      {/* Student Image & Name */}
-      <div className="flex items-center gap-4 mb-4">
-        {/* Student Image or Default Avatar */}
+      {/* Student Avatar & Name */}
+      <div className="flex items-center gap-5 mb-4">
         {student?.student_img ? (
           <img
-            src={student?.student_img}
-            alt={student?.fname + student?.lname}
-            className="w-28 h-28 object-cover rounded-full border-4 border-purple-300 shadow-md"
+            src={student.student_img}
+            alt={student.fname + student.lname}
+            className="w-24 h-24 object-cover rounded-full border-4 border-purple-200 shadow"
           />
         ) : (
-          <div className="w-28 h-28 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300 shadow-md">
-            <User className="w-14 h-14 text-gray-400" />
+          <div className="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center border-4 border-gray-200 shadow">
+            <User className="w-12 h-12 text-gray-400" />
           </div>
         )}
-
         <div>
-          <div className="text-xl font-bold text-gray-900">
-            {student?.fname + " " + student?.lname}
+          <div className="text-2xl font-bold text-gray-900 leading-tight">
+            {student?.fname} {student?.lname}
           </div>
-          <div className="text-sm text-gray-600">
-            {course?.course_name || "—"}
+          <div className="flex items-center gap-2 mt-1 text-gray-600 text-sm">
+            <BookOpen className="w-4 h-4 text-blue-500" />
+            <span>{course?.course_name || "—"}</span>
           </div>
         </div>
       </div>
 
-      {/* Student Info */}
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center text-gray-700 gap-2">
+      {/* Student Details */}
+      <div className="flex flex-col gap-3 text-gray-700 text-md mb-4">
+        <div className="flex items-center gap-2">
           <Phone className="w-4 h-4 text-blue-600" />
-          <span>{student?.contact_number}</span>
+          <span>
+            {student?.contact_number || (
+              <span className="italic text-gray-400">—</span>
+            )}
+          </span>
         </div>
-        <div className="flex items-center text-gray-700 gap-2">
+        <div className="flex items-center gap-2">
           <AtSign className="w-4 h-4 text-purple-600" />
-          <span>{student?.email}</span>
+          <span>
+            {student?.email || <span className="italic text-gray-400">—</span>}
+          </span>
         </div>
-        <div className="flex items-center text-gray-700 gap-2">
+        <div className="flex items-center gap-2">
           <LayoutList className="w-4 h-4 text-orange-600" />
-          <span className="capitalize">{student?.learning_mode}</span>
+          <span className="capitalize">
+            {student?.learning_mode || (
+              <span className="italic text-gray-400">—</span>
+            )}
+          </span>
         </div>
       </div>
 
@@ -62,7 +72,7 @@ const StudentsCard = ({ student, idx, course }) => {
         <div className="mt-auto pt-2">
           <button
             type="button"
-            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all duration-200"
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg flex items-center justify-center gap-2 transition-all duration-200 text-base"
             onClick={() => {
               navigate(`/dashboard/students/${student._id}/add-batch`, {
                 state: student,

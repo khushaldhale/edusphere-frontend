@@ -86,6 +86,19 @@ const Mocks = () => {
                       <Edit3 className="w-4 h-4 text-white" />
                       Add Marks
                     </motion.button>
+
+                    <motion.button
+                      whileHover="hover"
+                      whileTap="tap"
+                      onClick={() => {
+                        navigate(`/dashboard/mocks/${mock._id}/results`);
+                      }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm"
+                      aria-label="Add Marks to Mock"
+                    >
+                      <Edit3 className="w-4 h-4 text-white" />
+                      Show Marks
+                    </motion.button>
                   </div>
 
                   <div className="flex items-center gap-3 mt-3">

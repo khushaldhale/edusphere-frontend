@@ -196,8 +196,8 @@ const menus = [
         roles: ["admin", "operations_executive", "instructor"],
       },
       {
-        label: "All Mocks",
-        to: "/dashboard/student/mocks",
+        label: "Mock Results",
+        to: "/dashboard/student/mocks/results",
         roles: ["student"],
       },
     ],

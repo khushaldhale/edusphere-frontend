@@ -17,6 +17,8 @@ import CreateAssignment from "./components/assignments/CreateAssignment";
 import Assignments from "./components/assignments/Assignments";
 import AssignmentFilter from "./components/assignments/AssignmentFilter";
 import Performance from "./components/peformance/Performance";
+import MockResults from "./components/mocks/MockResults";
+import ShowResults from "./components/mocks/ShowResults";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -400,8 +402,16 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          <Route
+          <Route // add mock marks
             path="mocks/:id/students/:student/batches/:batch"
+            element={
+              <ProtectedRoute allowedRoles={["instructor"]}>
+                <AddMarks></AddMarks>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route // update mock marks
+            path="mocks/:id/students/:student/batches/:batch/update"
             element={
               <ProtectedRoute allowedRoles={["instructor"]}>
                 <AddMarks></AddMarks>
@@ -412,7 +422,7 @@ function App() {
           <Route
             path="assignments/add"
             element={
-              <ProtectedRoute allowedRoles={"instructor"}>
+              <ProtectedRoute allowedRoles={["instructor"]}>
                 <CreateAssignment></CreateAssignment>
               </ProtectedRoute>
             }
@@ -420,7 +430,7 @@ function App() {
           <Route
             path="instructor/assignments"
             element={
-              <ProtectedRoute allowedRoles={"instructor"}>
+              <ProtectedRoute allowedRoles={["instructor"]}>
                 <AssignmentFilter></AssignmentFilter>
               </ProtectedRoute>
             }
@@ -428,7 +438,7 @@ function App() {
           <Route
             path="assignments"
             element={
-              <ProtectedRoute allowedRoles={"student"}>
+              <ProtectedRoute allowedRoles={["student"]}>
                 <Assignments></Assignments>
               </ProtectedRoute>
             }
@@ -437,7 +447,7 @@ function App() {
           <Route
             path="notes/add"
             element={
-              <ProtectedRoute allowedRoles={"instructor"}>
+              <ProtectedRoute allowedRoles={["instructor"]}>
                 <CreateAssignment></CreateAssignment>
               </ProtectedRoute>
             }
@@ -445,7 +455,7 @@ function App() {
           <Route
             path="instructor/notes"
             element={
-              <ProtectedRoute allowedRoles={"instructor"}>
+              <ProtectedRoute allowedRoles={["instructor"]}>
                 <AssignmentFilter></AssignmentFilter>
               </ProtectedRoute>
             }
@@ -453,7 +463,7 @@ function App() {
           <Route
             path="notes"
             element={
-              <ProtectedRoute allowedRoles={"student"}>
+              <ProtectedRoute allowedRoles={["student"]}>
                 <Assignments></Assignments>
               </ProtectedRoute>
             }
@@ -462,8 +472,26 @@ function App() {
           <Route
             path="student/performance"
             element={
-              <ProtectedRoute allowedRoles={"student"}>
+              <ProtectedRoute allowedRoles={["student"]}>
                 <Performance></Performance>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* mock result for student */}
+          <Route
+            path="student/mocks/results"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <MockResults></MockResults>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*  show  mock result for instructor , executive  */}
+          <Route
+            path="mocks/:id/results"
+            element={
+              <ProtectedRoute allowedRoles={["instructor", "executive"]}>
+                <ShowResults></ShowResults>
               </ProtectedRoute>
             }
           ></Route>
