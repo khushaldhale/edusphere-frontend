@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAttendance } from "../../redux/slices/attendanceSlice";
+import {
+  clear_attendance,
+  getAttendance,
+} from "../../redux/slices/attendanceSlice";
 import { getStudent } from "../../redux/slices/studentsSlice";
 import {
   Calendar,
@@ -14,6 +17,7 @@ import {
   BookOpen,
   AlertCircle,
 } from "lucide-react";
+import { useParams } from "react-router-dom";
 
 const months = [
   { month: "January", number: 1 },
@@ -30,6 +34,8 @@ const months = [
   { month: "December", number: 12 },
 ];
 
+//  Attendance for student month wise.
+
 const StudentAttendance = () => {
   const attendance = useSelector((state) => state.attendance.attendance || []);
   const student = useSelector((state) => state.student.student);
@@ -38,9 +44,15 @@ const StudentAttendance = () => {
   const [formData, setFormData] = useState({ year: "", month: "" });
   const [years, setYears] = useState([]);
 
+  // attendance analysis by admin.
+  // for this particular thing to work we are providing student_id  in getStudent and getAttendance also.
+  // else  they were not required. so using nullify operator (?) to avoid  errors when student access this route.
+  const params = useParams();
+
   // Compute years based on admission date
   useEffect(() => {
-    dispatch(getStudent());
+    dispatch(clear_attendance());
+    dispatch(getStudent({ student_id: params?.id }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -68,7 +80,13 @@ const StudentAttendance = () => {
   // Fetch attendance when year and month are selected
   useEffect(() => {
     if (formData.year && formData.month) {
-      dispatch(getAttendance({ year: formData.year, month: formData.month }));
+      dispatch(
+        getAttendance({
+          year: formData.year,
+          month: formData.month,
+          student_id: params?.id,
+        })
+      );
     }
   }, [formData.year, formData.month, dispatch]);
 

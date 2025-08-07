@@ -19,6 +19,9 @@ import AssignmentFilter from "./components/assignments/AssignmentFilter";
 import Performance from "./components/peformance/Performance";
 import MockResults from "./components/mocks/MockResults";
 import ShowResults from "./components/mocks/ShowResults";
+import StudentDetails from "./components/studentinfo/StudentDetails";
+import StudentPerformance from "./components/peformance/StudentPerformance";
+import ExamResult from "./components/exam/examResult";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateCourse = lazy(() => import("./components/course/CreateCourse"));
 const Courses = lazy(() => import("./components/course/Courses"));
@@ -486,12 +489,73 @@ function App() {
               </ProtectedRoute>
             }
           ></Route>
-          {/*  show  mock result for instructor , executive  */}
+          {/*  show  mock result for instructor, executive*/}
           <Route
             path="mocks/:id/results"
             element={
-              <ProtectedRoute allowedRoles={["instructor", "executive"]}>
+              <ProtectedRoute
+                allowedRoles={["instructor", "operations_executive"]}
+              >
                 <ShowResults></ShowResults>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* Student info */}
+          <Route
+            path="student-info"
+            element={
+              <ProtectedRoute allowedRoles={["operations_executive", "admin"]}>
+                <StudentDetails></StudentDetails>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/* student Analytics */}
+          <Route
+            path="students/performance"
+            element={
+              <ProtectedRoute allowedRoles={["operations_executive", "admin"]}>
+                <StudentPerformance></StudentPerformance>
+              </ProtectedRoute>
+            }
+          ></Route>
+          {/*student attendance */}
+          <Route
+            path="students/:id/attendance"
+            element={
+              <ProtectedRoute
+                allowedRoles={["operations_executive", "admin", "instructor"]}
+              >
+                <StudentAttendance></StudentAttendance>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="students/:id/mocks"
+            element={
+              <ProtectedRoute
+                allowedRoles={["operations_executive", "admin", "instructor"]}
+              >
+                <MockResults></MockResults>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="students/:id/exams"
+            element={
+              <ProtectedRoute
+                allowedRoles={["operations_executive", "admin", "instructor"]}
+              >
+                <ExamResult></ExamResult>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="students/:id/performance"
+            element={
+              <ProtectedRoute
+                allowedRoles={["operations_executive", "admin", "instructor"]}
+              >
+                <Performance></Performance>
               </ProtectedRoute>
             }
           ></Route>

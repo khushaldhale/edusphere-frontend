@@ -21,9 +21,9 @@ export const createMockResult = createAsyncThunk("createMockResult", async (data
 	}
 })
 
-export const mockExamresults = createAsyncThunk("mockExamresults", async (_, { rejectWithValue }) => {
+export const mockExamresults = createAsyncThunk("mockExamresults", async (data, { rejectWithValue }) => {
 	try {
-		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/mock/results/all`, {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/mock/results/all?student=${data.student_id}`, {
 			method: "GET",
 			credentials: "include",
 		})

@@ -212,6 +212,22 @@ const menus = [
         to: "/dashboard/student/performance",
         roles: ["student"],
       },
+      {
+        label: "Performance",
+        to: "/dashboard/students/performance",
+        roles: ["operations_executive", "admin"],
+      },
+    ],
+  },
+  {
+    name: "Student Info",
+    icon: <BarChart2 className="w-5 h-5 mr-2" />, // Changed to BarChart2 icon
+    subMenus: [
+      {
+        label: "Info",
+        to: "/dashboard/student-info",
+        roles: ["operations_executive", "admin"],
+      },
     ],
   },
   {
@@ -231,6 +247,7 @@ const roleMenus = {
     "Batch Allocation",
     "Exams",
     "Mocks",
+    "Student Info",
     "Settings",
   ],
   counsellor: ["Courses", "Enquiries", "Batch Allocation", "Settings"],
@@ -261,6 +278,7 @@ const roleMenus = {
     "Attendance",
     "Exams",
     "Mocks",
+    "Student Info",
     "Settings",
   ],
 };

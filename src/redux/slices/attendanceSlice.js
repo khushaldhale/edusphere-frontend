@@ -24,7 +24,7 @@ export const markAttendance = createAsyncThunk("markAttendance", async (data, { 
 
 export const getAttendance = createAsyncThunk("getAttendance", async (data, { rejectWithValue }) => {
 	try {
-		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/attendance?year=${data.year}&month=${data.month}`, {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/attendance?year=${data.year}&month=${data.month}&student=${data.student_id}`, {
 			method: "GET",
 			credentials: "include",
 		})
@@ -64,6 +64,11 @@ export const attendanceSlice = createSlice(
 	{
 		name: "attendance",
 		initialState,
+		reducers: {
+			clear_attendance: (state) => {
+				state.attendance = []
+			}
+		},
 		extraReducers: (builder) => {
 			builder.addCase(markAttendance.pending, (state) => {
 				state.isLoading = true;
@@ -110,4 +115,6 @@ export const attendanceSlice = createSlice(
 		}
 	}
 )
+
+export const { clear_attendance } = attendanceSlice.actions;
 export default attendanceSlice.reducer; 

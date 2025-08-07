@@ -69,12 +69,32 @@ export const getExamAttempted = createAsyncThunk("getExamAttempted", async (data
 	}
 })
 
+// exam results for particular students.
+export const examResults = createAsyncThunk("examResults", async (data, { rejectWithValue }) => {
+	try {
+		const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/exam-attempt/result?student=${data?.student_id}`, {
+			method: "GET",
+			credentials: "include",
+		})
+
+		if (!response.ok) {
+			return rejectWithValue(await response.json());
+		}
+
+		return await response.json();
+	}
+	catch (error) {
+		return rejectWithValue(error)
+	}
+})
+
 
 
 const initialState = {
 	isLoading: null,
 	isError: null,
-	exam_attempted: {}
+	exam_attempted: {},
+	exam_results: []
 
 }
 
@@ -121,6 +141,22 @@ export const examAttempSlice = createSlice(
 					state.exam_attempted = action.payload.data;
 				})
 				.addCase(getExamAttempted.rejected, (state) => {
+					state.isLoading = false;
+					state.isError = true;
+				})
+
+
+
+			builder.addCase(examResults.pending, (state) => {
+				state.isLoading = true;
+				state.isError = false;
+			})
+				.addCase(examResults.fulfilled, (state, action) => {
+					state.isLoading = false;
+					state.isError = false;
+					state.exam_results = action.payload.data;
+				})
+				.addCase(examResults.rejected, (state) => {
 					state.isLoading = false;
 					state.isError = true;
 				})

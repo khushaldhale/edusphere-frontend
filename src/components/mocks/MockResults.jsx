@@ -3,21 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { mockExamresults } from "../../redux/slices/MockResult";
 import { Star } from "lucide-react";
 import MockResultCard from "./MockResultCard";
+import { useParams } from "react-router-dom";
 
 //  This is a personlised one for  student.
-
 const MockResults = () => {
+  const params = useParams();
   const dispatch = useDispatch();
   const mock_results = useSelector((state) => state.mockResult.mock_results);
 
   useEffect(() => {
-    dispatch(mockExamresults());
+    dispatch(mockExamresults({ student_id: params?.id }));
   }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-8">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+        <h2 className="text-3xl justify-center font-bold text-gray-900 mb-10 flex items-center gap-3">
           <Star className="w-7 h-7 text-blue-600" />
           Mock Exam Results
         </h2>

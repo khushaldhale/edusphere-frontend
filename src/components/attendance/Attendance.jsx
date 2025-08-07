@@ -22,6 +22,7 @@ import {
 } from "../../redux/slices/attendanceSlice";
 import { toast } from "react-toastify";
 
+// take attendance
 const Attendance = () => {
   const [courses, isLoading] = useFetchCourses();
   const dispatch = useDispatch();

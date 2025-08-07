@@ -112,6 +112,33 @@ const Performance = () => {
   const attendanceStats = calculateAttendanceStats();
   const mockData = processMockData();
 
+  // Process exam data for charts
+  const processExamData = () => {
+    if (!performance.examAttempt || performance.examAttempt.length === 0) {
+      return null;
+    }
+
+    const labels = performance.examAttempt.map((exam) => exam.exam_id.name);
+    const marksObtained = performance.examAttempt.map(
+      (exam) => exam.total_marks || 0
+    );
+    const totalMarks = performance.examAttempt.map(
+      (exam) => exam.exam_id.total_marks
+    );
+    const examStatuses = performance.examAttempt.map(
+      (exam) => exam.exam_attempt_status
+    );
+    const percentages = performance.examAttempt.map((exam) =>
+      exam.total_marks
+        ? Math.round((exam.total_marks / exam.exam_id.total_marks) * 100)
+        : 0
+    );
+
+    return { labels, marksObtained, totalMarks, examStatuses, percentages };
+  };
+
+  const examData = processExamData();
+
   // Chart configurations
   const attendanceLineChart = {
     labels: attendanceData.labels,
@@ -158,6 +185,28 @@ const Performance = () => {
           {
             label: "Total Marks",
             data: mockData.totalMarks,
+            backgroundColor: "#E5E7EB",
+            borderRadius: 8,
+            barThickness: 40,
+          },
+        ],
+      }
+    : null;
+
+  const examBarChart = examData
+    ? {
+        labels: examData.labels,
+        datasets: [
+          {
+            label: "Marks Obtained",
+            data: examData.marksObtained,
+            backgroundColor: "#3B82F6",
+            borderRadius: 8,
+            barThickness: 40,
+          },
+          {
+            label: "Total Marks",
+            data: examData.totalMarks,
             backgroundColor: "#E5E7EB",
             borderRadius: 8,
             barThickness: 40,
@@ -361,66 +410,217 @@ const Performance = () => {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <p className="text-2xl font-bold text-blue-600">
-                {performance.total_exams}
-              </p>
-              <p className="text-sm text-gray-600">Total Exams</p>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-2xl font-bold text-green-600">
-                {performance.examAttempt.length}
-              </p>
-              <p className="text-sm text-gray-600">Appeared</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-2xl font-bold text-gray-600">
-                {performance.total_exams - performance.examAttempt.length}
-              </p>
-              <p className="text-sm text-gray-600">Remaining</p>
-            </div>
-          </div>
+          {examData ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <div className="h-80">
+                <Bar data={examBarChart} options={chartOptions} />
+              </div>
 
-          {performance.examAttempt.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Recent Exam Attempts
-              </h3>
-              {performance.examAttempt.map((exam, index) => (
-                <div
-                  key={exam._id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                        <Award className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">
-                          {exam.exam_id.name}
-                        </h4>
-                        <p className="text-sm text-gray-500">
-                          Status: {exam.exam_attempt_status}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        Total Marks: {exam.exam_id.total_marks}
-                      </p>
-                    </div>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <p className="text-2xl font-bold text-blue-600">
+                      {performance.total_exams}
+                    </p>
+                    <p className="text-sm text-gray-600">Total Exams</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">
+                      {performance.examAttempt.length}
+                    </p>
+                    <p className="text-sm text-gray-600">Appeared</p>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <p className="text-2xl font-bold text-gray-600">
+                      {performance.total_exams - performance.examAttempt.length}
+                    </p>
+                    <p className="text-sm text-gray-600">Remaining</p>
                   </div>
                 </div>
-              ))}
+
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-900">Exam Details</h4>
+                  {performance.examAttempt.map((exam, index) => (
+                    <div
+                      key={exam._id}
+                      className="border border-gray-200 rounded-lg p-4"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="font-medium text-gray-900">
+                          {exam.exam_id.name}
+                        </h5>
+                        <span
+                          className={`px-3 py-1 rounded-full text-sm font-medium ${
+                            exam.exam_attempt_status === "submitted"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {exam.exam_attempt_status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600 mb-3">
+                        <span>
+                          Marks: {exam.total_marks || 0}/
+                          {exam.exam_id.total_marks}
+                        </span>
+                        <span>Duration: {exam.exam_id.duration} mins</span>
+                      </div>
+                      {examData.percentages[index] > 0 && (
+                        <div className="flex justify-between text-sm text-gray-600 mb-2">
+                          <span>Score: {examData.percentages[index]}%</span>
+                        </div>
+                      )}
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full ${
+                            examData.percentages[index] >= 75
+                              ? "bg-green-500"
+                              : examData.percentages[index] >= 50
+                              ? "bg-yellow-500"
+                              : examData.percentages[index] > 0
+                              ? "bg-red-500"
+                              : "bg-gray-400"
+                          }`}
+                          style={{
+                            width: `${
+                              examData.percentages[index] ||
+                              (exam.exam_attempt_status === "submitted"
+                                ? 100
+                                : 50)
+                            }%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <p className="text-2xl font-bold text-blue-600">
+                    {performance.total_exams}
+                  </p>
+                  <p className="text-sm text-gray-600">Total Exams</p>
+                </div>
+                <div className="text-center p-4 bg-green-50 rounded-lg">
+                  <p className="text-2xl font-bold text-green-600">
+                    {performance.examAttempt.length}
+                  </p>
+                  <p className="text-sm text-gray-600">Appeared</p>
+                </div>
+                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                  <p className="text-2xl font-bold text-gray-600">
+                    {performance.total_exams - performance.examAttempt.length}
+                  </p>
+                  <p className="text-sm text-gray-600">Remaining</p>
+                </div>
+              </div>
+
+              <div className="text-center py-8">
+                <Clock className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500">No exams attempted yet</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Exam performance data will appear here once you start taking
+                  exams
+                </p>
+              </div>
             </div>
           )}
         </div>
 
+        {/* Add exam progress visualization when there are attempts */}
+        {examData && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div className="flex items-center mb-6">
+              <TrendingUp className="h-5 w-5 text-blue-600 mr-2" />
+              <h2 className="text-xl font-semibold text-gray-900">
+                Exam Progress Overview
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                <p className="text-2xl font-bold text-blue-600">
+                  {Math.round(
+                    (performance.examAttempt.length / performance.total_exams) *
+                      100
+                  )}
+                  %
+                </p>
+                <p className="text-sm text-gray-600">Completion Rate</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                <p className="text-2xl font-bold text-green-600">
+                  {
+                    performance.examAttempt.filter(
+                      (exam) => exam.exam_attempt_status === "submitted"
+                    ).length
+                  }
+                </p>
+                <p className="text-sm text-gray-600">Submitted</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg">
+                <p className="text-2xl font-bold text-orange-600">
+                  {performance.examAttempt.reduce(
+                    (sum, exam) => sum + exam.exam_id.total_marks,
+                    0
+                  )}
+                </p>
+                <p className="text-sm text-gray-600">Total Marks Available</p>
+              </div>
+              <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                <p className="text-2xl font-bold text-purple-600">
+                  {Math.round(
+                    performance.examAttempt.reduce(
+                      (sum, exam) => sum + exam.exam_id.duration,
+                      0
+                    ) / performance.examAttempt.length
+                  ) || 0}
+                </p>
+                <p className="text-sm text-gray-600">Avg Duration (mins)</p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h4 className="font-medium text-gray-900 mb-3">
+                Overall Progress
+              </h4>
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-2">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-4 rounded-full transition-all duration-500"
+                  style={{
+                    width: `${Math.round(
+                      (performance.examAttempt.length /
+                        performance.total_exams) *
+                        100
+                    )}%`,
+                  }}
+                ></div>
+              </div>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>
+                  {performance.examAttempt.length} of {performance.total_exams}{" "}
+                  exams completed
+                </span>
+                <span>
+                  {Math.round(
+                    (performance.examAttempt.length / performance.total_exams) *
+                      100
+                  )}
+                  %
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Mock Tests Section */}
         {mockData && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
             <div className="flex items-center mb-6">
               <Target className="h-5 w-5 text-orange-600 mr-2" />
               <h2 className="text-xl font-semibold text-gray-900">
@@ -434,6 +634,28 @@ const Performance = () => {
               </div>
 
               <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <p className="text-2xl font-bold text-orange-600">
+                      {performance.total_mocks}
+                    </p>
+                    <p className="text-sm text-gray-600">Total Mocks</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">
+                      {performance.mockAttempt.length}
+                    </p>
+                    <p className="text-sm text-gray-600">Appeared</p>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <p className="text-2xl font-bold text-gray-600">
+                      {performance.total_mocks - performance.mockAttempt.length}
+                    </p>
+                    <p className="text-sm text-gray-600">Remaining</p>
+                  </div>
+                </div>
+
+                <h4 className="font-medium text-gray-900">Mock Test Details</h4>
                 {performance.mockAttempt.map((mock, index) => (
                   <div
                     key={mock._id}
@@ -491,6 +713,26 @@ const Performance = () => {
               <h2 className="text-xl font-semibold text-gray-900">
                 Mock Test Performance
               </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
+                <p className="text-2xl font-bold text-orange-600">
+                  {performance.total_mocks}
+                </p>
+                <p className="text-sm text-gray-600">Total Mocks</p>
+              </div>
+              <div className="text-center p-4 bg-green-50 rounded-lg">
+                <p className="text-2xl font-bold text-green-600">
+                  {performance.mockAttempt.length}
+                </p>
+                <p className="text-sm text-gray-600">Appeared</p>
+              </div>
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <p className="text-2xl font-bold text-gray-600">
+                  {performance.total_mocks - performance.mockAttempt.length}
+                </p>
+                <p className="text-sm text-gray-600">Remaining</p>
+              </div>
             </div>
             <div className="text-center py-8">
               <Clock className="h-12 w-12 text-gray-400 mx-auto mb-3" />
